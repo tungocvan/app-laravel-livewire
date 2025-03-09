@@ -1,0 +1,23 @@
+root = /var/www/ntd-trac-nghiem
+root = /var/www/local-pc/laravel-workspace/ntd-trac-nghiem
+
+auto = true
+batch = true
+confirmbigdel = false
+prefer = newer
+retry = 3
+fastcheck = true  
+# path = ten-thu-muc / ten - file -> chi dinh thu muc hoac tap tin can dong bo
+ignore = Path node_modules
+ignore = Path vendor
+ignore = Path tests
+ignore = Name default.prf
+ignore = Name *.tmp
+ignore = Path storage/framework
+ignore = Path storage/logs
+ignore = Path bootstrap/cache
+ignore = Path public/build
+ignore = Path public/vendor
+ignore = Path storage/framework
+ignore = Path storage/logs
+ignore = Path .git
