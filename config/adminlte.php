@@ -1,4 +1,37 @@
 <?php
+$settingsMenu =  [
+    'text' => 'Manager Settings',
+    'url' => '#',
+    'icon' => 'fas fa-fw fa-user',
+    'can' => 'settings-list',
+    'submenu' => [
+        [
+            'text' => 'Cài đặt hệ thống',
+            'icon' => 'fas fa-fw fa-user',
+            'url' => 'settings',
+        ],
+        [
+            'text' => 'Hướng dẫn sử dụng Admin',
+            'icon' => 'fas fa-fw fa-user',
+            'url' => 'settings/help',
+        ],
+    ],
+];
+$accountMenu =  [
+    ['header' => 'account_settings'],
+    [
+        'text' => 'Manage Users',
+        'url' => 'admin/users',
+        'icon' => 'fas fa-fw fa-user',
+        'can' => 'admin-create',
+    ],
+    [
+        'text' => 'Manage Role',
+        'url' => 'admin/roles',
+        'icon' => 'fas fa-fw fa-user-shield',
+        'can' => 'role-list',
+    ]
+];
 
 $menuNavbar = [
     [
@@ -50,24 +83,8 @@ $menuSidebar = [
         'type' => 'sidebar-menu-search',
         'text' => 'search',
     ],
-    ['header' => 'account_settings'],
-    [
-        'text' => 'Manage Users',
-        'url' => 'admin/users',
-        'icon' => 'fas fa-fw fa-user',
-        'can' => 'user-list',
-    ],
-    [
-        'text' => 'Manage Role',
-        'url' => 'admin/roles',
-        'icon' => 'fas fa-fw fa-user-shield',
-        'can' => 'role-list',
-    ],
-    [
-        'text' => 'change_password',
-        'url' => 'admin/profile',
-        'icon' => 'fas fa-fw fa-lock',
-    ],
+    ...$accountMenu,
+    $settingsMenu,
 ];
 
 $menu = [

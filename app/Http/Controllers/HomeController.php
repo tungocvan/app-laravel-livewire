@@ -28,7 +28,7 @@ class HomeController extends Controller
             case 'Admin':
                 return redirect()->route('admin.index');
             case 'User':
-                return redirect()->route('dashboard.index');
+                return redirect()->route('user.index');
 
             default:
                  return view('home');

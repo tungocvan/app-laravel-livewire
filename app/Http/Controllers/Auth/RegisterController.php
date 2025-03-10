@@ -65,7 +65,9 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-            $roleId = Role::where('name','User')->get()[0]->id ?? null;
+                                               
+            $roleId = Role::where('name','User')->get()[0]->id ?? null;            
+         
             if(!$roleId){
                 $role = Role::create(['name' => 'User']);
                 $roleId = $role->id;
@@ -75,12 +77,12 @@ class RegisterController extends Controller
                 'name' => $data['name'],
                 'email' => $data['email'],
                 'password' => Hash::make($data['password']),
-            ]);
-           
+            ]);           
             
-            // $permissions = Permission::pluck('id','id')->all();
-            // $role->syncPermissions($permissions);
+            $permissions = Permission::where('name','admin-list')->orWhere('name','user-list')->pluck('id','id')->all();
+            $role->syncPermissions($permissions);
             $user->assignRole([$roleId]);
-        return $user;
+            
+            return $user;
     }
 }
