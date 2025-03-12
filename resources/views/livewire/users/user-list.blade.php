@@ -2,43 +2,50 @@
     <div class="card-header">
         <div class="row">
             <div class="col-sm-12 col-md-10" style="display:inline-flex">
-                <button type="button" style="width: 100px;" class="btn btn-outline-success btn-sm"><i class="fa fa-plus"></i> Add</button> 
-                <button type="button" style="width: 100px;" class="btn btn-outline-danger btn-sm mx-2"><i class="fa fa-trash"></i> Delete All</button>             
-                <form wire:submit="importFile">
-                    <div class="btn btn-outline-success btn-sm btn-file" x-data="{ uploading: false }">
-                        <!-- Hiển thị trạng thái chờ -->
-                        <i class="fas fa-paperclip"></i> Import Excel
-                        <input type="file" wire:model="file"  wire:disabled="isImporting"> 
-                        <span class="help-block">Max 32MB</span> 
-                        @error('file') <span class="error">{{ $message }}</span> @enderror                                        
+                <button wire:click="openModal" style="width: 100px;" class="btn btn-outline-success btn-sm"><i class="fa fa-plus"></i> Add</button> 
+                <button wire:click="deleteSelected" onclick="return confirm('Are you sure you want to delete selected users?')" style="width: 100px;" class="btn btn-outline-danger btn-sm mx-2"><i class="fa fa-trash"></i> Delete All</button>             
+                <form wire:submit.prevent="importFile" x-data="{ uploading: false }">
+                    <div>
+                        <div class="btn btn-outline-success btn-sm btn-file">
+                            <!-- Hiển thị trạng thái chờ -->
+                            <i class="fas fa-paperclip"></i> Import Excel
+                            <input type="file" wire:model="file" @change="uploading = true" wire:disabled="isImporting">
+                            <span class="help-block">Max 100 rows</span> 
+                            @error('file') <span class="error">{{ $message }}</span> @enderror                                        
+                        </div>
+                
+                        <!-- Nút Upload hiển thị khi uploading = true -->
+                        <button x-show="uploading" type="submit" style="width: 100px;" class="btn btn-outline-success btn-sm">
+                            Upload File
+                        </button>
+                
+                        <!-- Hiển thị trạng thái tải lên của Livewire -->
+                        <div wire:loading wire:target="file">Uploading...</div>   
                     </div>
-                   
-                    <button x-show="uploading" type="submit" style="width: 100px;" class="btn btn-outline-success btn-sm">Upload File</button> 
-                    <div wire:loading wire:target="file">Uploading...</div>   
                 </form>
+                
                 
             </div>            
         </div>
         <div class="row mt-2">
             <div class="col-sm-12 col-md-10 d-flex">               
                 <div class="form-group mr-2" style="width:150px">                    
-                    <select class="form-control custom-select">                      
-                      <option>Show 10 rows</option>
-                      <option>Show 25 rows</option>
-                      <option>Show 50 rows</option>
-                      <option>Show 100 rows</option>                      
+                    <select wire:model.change="perPage"  class="form-control custom-select">                      
+                      <option value="5">Show 05 rows</option>
+                      <option value="10">Show 10 rows</option>
+                      <option value="50">Show 50 rows</option>
+                      <option value="100">Show 100 rows</option>                      
                     </select>
                 </div>
                 <div>
-                    <button class="btn buttons-print btn-default" tabindex="0" aria-controls="table7" type="button" title="Print"><span><i class="fas fa-fw fa-lg fa-print"></i></span></button> 
-                    <button class="btn buttons-csv buttons-html5 btn-default" tabindex="0" aria-controls="table7" type="button" title="Export to CSV"><span><i class="fas fa-fw fa-lg fa-file-csv text-primary"></i></span></button> 
-                    <button class="btn buttons-excel buttons-html5 btn-default" tabindex="0" aria-controls="table7" type="button" title="Export to Excel"><span><i class="fas fa-fw fa-lg fa-file-excel text-success"></i></span></button> 
-                    <button class="btn buttons-pdf buttons-html5 btn-default" tabindex="0" aria-controls="table7" type="button" title="Export to PDF"><span><i class="fas fa-fw fa-lg fa-file-pdf text-danger"></i></span></button> 
+                    <button x-on:click="$wire.printUsers()" class="btn buttons-print btn-default"  title="Print"><span><i class="fas fa-fw fa-lg fa-print"></i></span></button>         
+                    <button wire:click="exportSelected" class="btn buttons-excel buttons-html5 btn-default"  title="Export to Excel"><span><i class="fas fa-fw fa-lg fa-file-excel text-success"></i></span></button> 
+                    <button wire:click="exportToPDF" class="btn buttons-pdf buttons-html5 btn-default"  title="Export to PDF"><span><i class="fas fa-fw fa-lg fa-file-pdf text-danger"></i></span></button> 
                 </div>               
             </div>
             <div class="col-sm-12 col-md-2">
                 <div class="input-group input-group-sm float-right">
-                    <input type="text" name="table_search" class="form-control" placeholder="Search">
+                    <input type="text" wire:model.live.debounce.250ms="search" class="form-control" placeholder="Search">
                     <div class="input-group-append">
                       <button type="submit" class="btn btn-default">
                         <i class="fas fa-search"></i>
@@ -51,12 +58,13 @@
     </div>
     <!-- /.card-header -->
     <div class="card-body table-responsive p-0">
+        <div x-data>  
       <table class="table table-hover text-nowrap">
         <thead>
           <tr>
             <th>
                 <div class="form-check">
-                    <input type="checkbox" class="form-check-input form-check-label">
+                    <input type="checkbox" class="form-check-input form-check-label" wire:model="selectAll" wire:click="toggleSelectAll">
                     <label class="form-check-label" for="exampleCheck1"></label>
                 </div>
             </th>            
@@ -72,7 +80,7 @@
                 <tr>
                     <td> 
                         <div class="form-check">
-                            <input type="checkbox" class="form-check-input">                
+                            <input type="checkbox" class="form-check-input" wire:model="selectedUsers" value="{{ $user->id }}">                
                         </div>
                     </td>
                     <td>{{ $user->id }}</td>
@@ -86,7 +94,7 @@
                         @endif
                     </td>
                     <td>
-                        <div class="btn-group flex-wrap d-flex">
+                        <div class="btn-group flex-wrap d-flex" style="width:150px">
                             <button wire:click="edit({{ $user->id }})" class="btn btn-outline-primary btn-sm mr-1"><i class="fa fa-edit"></i> Edit</button>
                             <button wire:click="delete({{ $user->id }})" class="btn btn-outline-danger btn-sm"><i class="fa fa-trash"></i> Delete</button>
                         </div>
@@ -96,9 +104,69 @@
        
         </tbody>
       </table>
+        </div>
     </div>
     <!-- /.card-body -->
     <div class="card-footer clearfix">
-        <div class="row"><div class="col-sm-12 col-md-5"><div class="dataTables_info" id="example2_info" role="status" aria-live="polite">Showing 1 to 10 of 57 entries</div></div><div class="col-sm-12 col-md-7"><div class="dataTables_paginate paging_simple_numbers" id="example2_paginate"><ul class="pagination"><li class="paginate_button page-item previous disabled" id="example2_previous"><a href="#" aria-controls="example2" data-dt-idx="0" tabindex="0" class="page-link">Previous</a></li><li class="paginate_button page-item active"><a href="#" aria-controls="example2" data-dt-idx="1" tabindex="0" class="page-link">1</a></li><li class="paginate_button page-item "><a href="#" aria-controls="example2" data-dt-idx="2" tabindex="0" class="page-link">2</a></li><li class="paginate_button page-item "><a href="#" aria-controls="example2" data-dt-idx="3" tabindex="0" class="page-link">3</a></li><li class="paginate_button page-item "><a href="#" aria-controls="example2" data-dt-idx="4" tabindex="0" class="page-link">4</a></li><li class="paginate_button page-item "><a href="#" aria-controls="example2" data-dt-idx="5" tabindex="0" class="page-link">5</a></li><li class="paginate_button page-item "><a href="#" aria-controls="example2" data-dt-idx="6" tabindex="0" class="page-link">6</a></li><li class="paginate_button page-item next" id="example2_next"><a href="#" aria-controls="example2" data-dt-idx="7" tabindex="0" class="page-link">Next</a></li></ul></div></div></div>
-      </div>
+        <div class="row">           
+            <div class="col-sm-12 col-md-12">
+                {{ $this->users->links(data: ['scrollTo' => false]) }}
+            </div>
+    </div>
+     <!-- Modal -->
+     <div class="modal fade @if($showModal) show @endif" style="display: @if($showModal) block @else none @endif;" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ $isEdit ? 'Edit User' : 'Add User' }}</h5>
+                    <button type="button" class="close" wire:click="closeModal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form wire:submit.prevent="{{ $isEdit ? 'update' : 'save' }}">
+                        <div class="form-group">
+                            <input type="text" wire:model="name" class="form-control" placeholder="Name">
+                            @error('name') <span class="text-danger">{{ $message }}</span> @enderror
+                        </div>
+                        <div class="form-group">
+                            <input type="email" wire:model="email" class="form-control" placeholder="Email">
+                            @error('email') <span class="text-danger">{{ $message }}</span> @enderror
+                        </div>
+                        <div class="form-group">
+                            <select class="form-control" wire:model="role">
+                                @foreach ($this->roles as $value => $label)
+                                    <option value="{{ $value }}">
+                                        {{ $label }}
+                                    </option>
+                                 @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <input type="password" wire:model="password" class="form-control" placeholder="Password">
+                            @error('password') <span class="text-danger">{{ $message }}</span> @enderror
+                        </div>
+                        <button type="submit" class="btn btn-primary">{{ $isEdit ? 'Update' : 'Save' }}</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    window.addEventListener('open-print-window', event => {
+        let newWindow = window.open('', '_blank');
+        if (newWindow) {
+            let decodedHtml = atob(event.detail[0].url.split(',')[1]); // Giải mã base64
+            newWindow.document.open();
+            newWindow.document.write(decodedHtml);
+            newWindow.document.close();
+            newWindow.print();
+            setTimeout(() => newWindow.close(), 1000); // Đóng sau khi in
+        } else {
+            alert('Trình duyệt chặn popup! Hãy kiểm tra cài đặt.');
+        }
+    });
+
+</script>
 </div>
