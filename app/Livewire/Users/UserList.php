@@ -30,6 +30,7 @@ class UserList extends Component
     public $selectAll = false;
 
     public $showModal = false;
+    public $showModalRole = false;
     public $isEdit = false;
     public $name;
     public $email;
@@ -186,6 +187,32 @@ class UserList extends Component
     {
         $this->showModal = false;
     }
+
+    public function updateRole()
+    {
+        $roleId = Role::where('name',$this->role)->get()[0]->id ?? null;  
+        //$this->reset(['name', 'email', 'password', 'userId', 'isEdit']);
+        //dd($this->selectedUsers);       
+        foreach ($this->selectedUsers as $user) {            
+            $userRole = User::find($user);
+            $userRole->removeRole($userRole->getRoleNames()[0]);
+            $userRole->assignRole([$roleId]);
+        }
+        $this->showModalRole = false;
+        session()->flash('message', 'User Role updated successfully!');
+    }
+    public function openModalRole()
+    {
+        //$this->reset(['name', 'email', 'password', 'userId', 'isEdit']);
+        //dd($this->selectedUsers);
+        $this->showModalRole = true;
+    }
+    public function closeModalRole()
+    {
+        $this->showModalRole = false;
+    }
+
+
     public function exportSelected()
     {
         if (empty($this->selectedUsers)) {

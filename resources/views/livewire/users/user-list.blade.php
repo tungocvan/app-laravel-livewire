@@ -4,6 +4,7 @@
             <div class="col-sm-12 col-md-10" style="display:inline-flex">
                 <button wire:click="openModal" style="width: 100px;" class="btn btn-outline-success btn-sm"><i class="fa fa-plus"></i> Add</button> 
                 <button wire:click="deleteSelected" onclick="return confirm('Are you sure you want to delete selected users?')" style="width: 100px;" class="btn btn-outline-danger btn-sm mx-2"><i class="fa fa-trash"></i> Delete All</button>             
+                 <button wire:click="openModalRole" style="width: 150px;" class="btn btn-outline-success btn-sm mr-2"><i class="fa fa-save"></i> Update All Roles</button>
                 <form wire:submit.prevent="importFile" x-data="{ uploading: false }">
                     <div>
                         <div class="btn btn-outline-success btn-sm btn-file">
@@ -113,7 +114,7 @@
                 {{ $this->users->links(data: ['scrollTo' => false]) }}
             </div>
     </div>
-     <!-- Modal -->
+     <!-- Modal Add - Edit -->
      <div class="modal fade @if($showModal) show @endif" style="display: @if($showModal) block @else none @endif;" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -152,6 +153,35 @@
             </div>
         </div>
     </div>
+
+     <!-- Modal Role -->
+     <div class="modal fade @if($showModalRole) show @endif" style="display: @if($showModalRole) block @else none @endif;" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">UPDATE ROLES</h5>
+                    <button type="button" class="close" wire:click="closeModalRole" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form wire:submit.prevent="updateRole">                        
+                        <div class="form-group">
+                            <select class="form-control" wire:model="role">
+                                @foreach ($this->roles as $value => $label)
+                                    <option value="{{ $value }}">
+                                        {{ $label }}
+                                    </option>
+                                 @endforeach
+                            </select>
+                        </div>                 
+                        <button type="submit" class="btn btn-primary">Update All</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 <script>
     window.addEventListener('open-print-window', event => {

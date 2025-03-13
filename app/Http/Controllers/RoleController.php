@@ -101,14 +101,14 @@ class RoleController extends Controller
             'permission' => 'required',
         ]);
 
-        dd($request->input('permission'));
+        //dd($request->input('permission'));
 
         $permissionsID = array_map(
             function($value) { return (int)$value; },
             $request->input('permission')
         );
         
-        dd($permissionsID);
+        //dd($permissionsID);
 
         $role = Role::create(['name' => $request->input('name')]);
         $role->syncPermissions($permissionsID);
