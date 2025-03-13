@@ -1,6 +1,7 @@
 <?php
 
 use Carbon\Carbon;
+use Illuminate\Support\Facades\File;
 
 /**
  * Write code on Method
@@ -26,59 +27,59 @@ if (! function_exists('convertMdyToYmd')) {
     }
 }
 
-function parseQuestionDetails($questionDetails) {
-    // Loại bỏ dấu [] bao quanh các phần tử
-    //dd($questionDetails);
-    //preg_match('/\[(.*?)\]\[(.*?)\]\[(.*?)\]/', $questionDetails, $matches);
-    preg_match('/\[(.*?)\]\[(.*?)\]\[(.*?)\]/s', $questionDetails, $matches);
+function generateMenuJson()
+{
+    $menu = [
+        ['header' => 'ACCOUNT SETTINGS'],
+        [
+            'text' => 'Manage Users',
+            'url' => 'admin/users',
+            'icon' => 'fas fa-fw fa-user',
+            'can' => 'admin-create',
+        ],
+        [
+            'text' => 'Manage Role',
+            'url' => 'admin/roles',
+            'icon' => 'fas fa-fw fa-user-shield',
+            'can' => 'role-list',
+        ],
+        ['header' => 'MANAGER SETTINGS'],
+        [
+            'text' => 'Manager Settings',
+            'url' => '#',
+            'icon' => 'fas fa-fw fa-user',
+            'can' => 'settings-list',
+            'submenu' => [
+                [
+                    'text' => 'Cài đặt hệ thống',
+                    'url' => 'settings',
+                    'icon' => 'fas fa-fw fa-user',
+                    'can' => 'settings-list',
+                    'submenu' => [
+                        [
+                            'text' => 'Hướng dẫn sử dụng Admin',
+                            'url' => 'settings/help',
+                            'icon' => 'fas fa-fw fa-user',
+                            'can' => 'settings-list',
+                        ]
+                    ]
+                ],
+                [
+                    'text' => 'Hướng dẫn sử dụng Admin',
+                    'url' => 'settings/help',
+                    'icon' => 'fas fa-fw fa-user',
+                    'can' => 'settings-list',
+                ],
+            ],
+        ]
+    ];
 
-   //dd($matches);
+    // Chuyển đổi mảng thành JSON
+    $jsonMenu = json_encode($menu, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 
-    // Kiểm tra nếu có đúng 3 nhóm kết quả: content, answers, correct_answers
-    if (count($matches) === 4) {
-        // Phân tách từng phần
-        $content = $matches[1]; // Nội dung câu hỏi
-        $answers = explode('|', $matches[2]); // Các đáp án
-        $correct_answers = $matches[3]; // Đáp án đúng
-        //dd($correct_answers);
-        // Trả về mảng kết quả
-        $result =  [
-            'content' => $content,
-            'answers' => $answers,
-            'correct_answers' => $correct_answers, // Chuyển các vị trí đáp án đúng thành số nguyên
-        ];
+    // Lưu file JSON vào thư mục public
+    $filePath = public_path('menu.json');
+    File::put($filePath, $jsonMenu);
 
-        return $result;
-    }
-
-    // Nếu chuỗi không đúng định dạng, trả về null hoặc thông báo lỗi
-    return null;
-}
-
-
-function parseQuestions($questionString) {
-    // Loại bỏ ký tự không cần thiết ở đầu và cuối
-    $questionString = trim($questionString, '[]');
-
-    // Tách từng câu hỏi bằng cách tách các phần tử lớn [[...]]
-    $questionParts = explode('],[', $questionString);
-
-    $questions = [];
-
-    foreach ($questionParts as $part) {
-        // Loại bỏ các dấu [] còn lại
-        $part = trim($part, '[]');
-
-        // Tách các phần tử của câu hỏi (nội dung câu hỏi, đáp án, đáp án đúng)
-        $elements = explode('][', $part);
-
-        // Tạo câu hỏi với các đáp án và đáp án đúng
-        $questions[] = [
-            'content' => $elements[0],
-            'answers' => explode('|', $elements[1]),
-            'correct_answer' => $elements[2],
-        ];
-    }
-
-    return $questions;
+    return response()->json(['message' => 'Menu JSON created successfully!', 'path' => url('menu.json')]);
 }

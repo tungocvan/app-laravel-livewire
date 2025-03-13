@@ -7,7 +7,7 @@
 @stop
 
 @section('content')
-      
+      @livewire('menu-editor')
 @stop
 
 @section('css')
