@@ -7,15 +7,13 @@ $settingsMenu =  [
     'submenu' => [
         [
             'text' => 'Cài đặt hệ thống',
+            'icon' => 'fas fa-fw fa-user',
             'url' => 'settings',
-            'icon' => 'fas fa-fw fa-user',            
-            'can' => 'settings-list',
         ],
         [
             'text' => 'Hướng dẫn sử dụng Admin',
             'icon' => 'fas fa-fw fa-user',
             'url' => 'settings/help',
-            'can' => 'settings-list',
         ],
     ],
 ];

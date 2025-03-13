@@ -18,6 +18,7 @@ class SettingsController extends Controller
     }
     public function index()
     {
+        //dd(generateMenuJson());
         return view('Settings::settings');
     }
     public function help()

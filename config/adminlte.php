@@ -1,37 +1,7 @@
 <?php
-$settingsMenu =  [
-    'text' => 'Manager Settings',
-    'url' => '#',
-    'icon' => 'fas fa-fw fa-user',
-    'can' => 'settings-list',
-    'submenu' => [
-        [
-            'text' => 'Cài đặt hệ thống',
-            'icon' => 'fas fa-fw fa-user',
-            'url' => 'settings',
-        ],
-        [
-            'text' => 'Hướng dẫn sử dụng Admin',
-            'icon' => 'fas fa-fw fa-user',
-            'url' => 'settings/help',
-        ],
-    ],
-];
-$accountMenu =  [
-    ['header' => 'account_settings'],
-    [
-        'text' => 'Manage Users',
-        'url' => 'admin/users',
-        'icon' => 'fas fa-fw fa-user',
-        'can' => 'admin-create',
-    ],
-    [
-        'text' => 'Manage Role',
-        'url' => 'admin/roles',
-        'icon' => 'fas fa-fw fa-user-shield',
-        'can' => 'role-list',
-    ]
-];
+
+$filePath = config_path('menu.json');
+$menuArray = loadMenuFromJson($filePath);
 
 $menuNavbar = [
     [
@@ -83,8 +53,7 @@ $menuSidebar = [
         'type' => 'sidebar-menu-search',
         'text' => 'search',
     ],
-    ...$accountMenu,
-    $settingsMenu,
+    ...$menuArray,
 ];
 
 $menu = [
