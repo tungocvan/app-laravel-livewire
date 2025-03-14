@@ -25,5 +25,9 @@ class SettingsController extends Controller
     {
         return view('Settings::help');
     }
+    public function menu()
+    {
+        return view('Settings::menu');
+    }
 
     }

@@ -24,6 +24,12 @@
         "can": "settings-list",
         "submenu": [
             {
+                "text": "Quản trị Menu",
+                "url": "settings\/menu",
+                "icon": "fas fa-fw fa-user",
+                "can": "settings-list"
+            },
+            {
                 "text": "Hướng dẫn sử dụng Admin",
                 "url": "settings\/help",
                 "icon": "fas fa-fw fa-user",
