@@ -1,9 +1,9 @@
 [
     {
-        "header": "ACCOUNT SETTINGS"
+        "header": "ACCOUNT SETTINGS "
     },
     {
-        "text": "Manage Users",
+        "text": "Manage Users ",
         "url": "admin\/users",
         "icon": "fas fa-fw fa-user",
         "can": "admin-create"
@@ -24,20 +24,20 @@
         "can": "settings-list",
         "submenu": [
             {
-                "text": "Quản trị Menu",
-                "url": "settings\/menu",
-                "icon": "fas fa-fw fa-user",
-                "can": "settings-list"
-            },
-            {
-                "text": "Hướng dẫn sử dụng Admin",
+                "text": "H\u01b0\u1edbng d\u1eabn s\u1eed d\u1ee5ng Admin",
                 "url": "settings\/help",
                 "icon": "fas fa-fw fa-user",
                 "can": "settings-list"
             },
             {
-                "text": "Cài đặt hệ thống",
+                "text": "C\u00e0i \u0111\u1eb7t h\u1ec7 th\u1ed1ng ",
                 "url": "settings",
+                "icon": "fas fa-fw fa-list",
+                "can": "settings-list"
+            },
+            {
+                "text": "Qu\u1ea3n tr\u1ecb Menu",
+                "url": "settings\/menu",
                 "icon": "fas fa-fw fa-user",
                 "can": "settings-list"
             }

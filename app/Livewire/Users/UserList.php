@@ -195,7 +195,10 @@ class UserList extends Component
         //dd($this->selectedUsers);       
         foreach ($this->selectedUsers as $user) {            
             $userRole = User::find($user);
-            $userRole->removeRole($userRole->getRoleNames()[0]);
+            if(isset($userRole->getRoleNames()[0])){
+                $userRole->removeRole($userRole->getRoleNames()[0]);
+            }
+            
             $userRole->assignRole([$roleId]);
         }
         $this->showModalRole = false;
