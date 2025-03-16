@@ -113,7 +113,12 @@ class MenuList extends Component
     
     public function closeModal()
     {
-        $this->showModal = false; // Đóng modal
+            $this->menuHeader = null;
+            $this->menuText = null;
+            $this->menuUrl = null;
+            $this->menuIcon =null;
+            $this->menuCan = null;
+            $this->showModal = false; // Đóng modal
     }
     
     public function updateMenu()
