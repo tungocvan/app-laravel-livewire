@@ -29,5 +29,9 @@ class SettingsController extends Controller
     {
         return view('Settings::menu');
     }
-
+    public function artisan()
+    {
+        return view('Settings::artisan');
     }
+
+}

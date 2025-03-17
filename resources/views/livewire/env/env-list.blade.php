@@ -1,43 +1,63 @@
 <div>
     <h1>Chỉnh sửa file .env</h1>
-    <ul>
+    
+    <!-- Thêm cặp key=value mới -->
+    <div class="my-3">
+        @if($errorMessage)
+            <div class="alert alert-danger">{{ $errorMessage }}</div>
+        @endif
+        <div class="d-flex flex-row bd-highlight mb-3 w-50">
+        <input type="text" wire:model="newKey" placeholder="Key" class="form-control my-1 mr-2" style="width:200px"/>
+        <input type="text" wire:model="newValue" placeholder="Value" class="form-control my-1 mr-2" style="width:400px" />        
+        <button wire:click="addItem" style="width: 150px;" class="btn btn-outline-success btn-sm">
+            <i class="fa fa-plus"></i> Thêm mới
+        </button>
+        </div>
+        
+    </div>
+    
+    <ul class="list-group">
         @foreach($envVariables as $line)
-            @php
-                $line = trim($line);
-                if (strpos($line, '=') !== false) {
-                    [$key, $value] = explode('=', $line, 2);
+            @if (strpos($line, '=') !== false)
+                @php
+                    [$key, $value] = explode('=', trim($line), 2);
                     $value = trim($value);
-                } else {
-                    $key = $line;
-                    $value = '';
-                }
-            @endphp
-            <li>
-                <strong>{{ $key }}</strong>: {{ $value }}
-                <button wire:click="openModal('{{ $key }}', '{{ $value }}')">Chỉnh sửa</button>
-                <button wire:click="deleteEnv('{{ $key }}')">Xóa</button>
-            </li>
+                @endphp
+                <li class="list-group-item">
+                    <div class="row">
+                        <div class="col-md-3"><strong>{{ $key }}</strong></div>
+                        <div class="col-md-3" style="overflow-wrap: break-word;">{{ $value }}</div>
+                        <div class="col-md-2">
+                            <button wire:click="openModal('{{ $key }}', '{{ $value }}')" class="btn btn-warning btn-sm">Chỉnh sửa</button>
+                            <button wire:click="deleteEnv('{{ $key }}')" class="btn btn-danger btn-sm">Xóa</button>
+                        </div>
+                    </div>                    
+                </li>
+            @endif
         @endforeach
     </ul>
 
     <!-- Modal -->
-    <div id="modal" style="display: none;">
-        <div style="background: rgba(0, 0, 0, 0.5); position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000;"></div>
-        <div style="background: white; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 20px; z-index: 1001;">
-            <h2>Chỉnh sửa {{ $selectedKey }}</h2>
-            <input type="text" wire:model="selectedValue" />
-            <button wire:click="updateEnv">Cập nhật</button>
-            <button wire:click="$set('selectedKey', null)">Đóng</button>
+    <div class="modal fade @if($showModal) show @endif" style="@if($showModal) display: block; @endif" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Chỉnh sửa {{ $selectedKey }}</h5>
+                    <button wire:click="resetModal" type="button" class="close" aria-label="Đóng">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" wire:model="selectedValue" class="form-control" />
+                    @if($errorMessage)
+                        <div class="alert alert-danger mt-2">{{ $errorMessage }}</div>
+                    @endif
+                </div>
+                <div class="modal-footer">
+                    <button wire:click="updateEnv" class="btn btn-primary">Cập nhật</button>
+                    <button wire:click="resetModal" class="btn btn-secondary">Đóng</button>
+                </div>
+            </div>
         </div>
     </div>
-
-    <script>
-        window.addEventListener('open-modal', () => {
-            document.getElementById('modal').style.display = 'block';
-        });
-
-        window.addEventListener('close-modal', () => {
-            document.getElementById('modal').style.display = 'none';
-        });
-    </script>
 </div>
