@@ -33,5 +33,9 @@ class SettingsController extends Controller
     {
         return view('Settings::artisan');
     }
+    public function components()
+    {
+        return view('Settings::components');
+    }
 
 }

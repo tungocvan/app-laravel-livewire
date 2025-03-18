@@ -48,5 +48,19 @@
                 "can": "settings-list"
             }
         ]
+    },
+    {
+        "text": "Components",
+        "url": "#",
+        "icon": "far fa-caret-square-right",
+        "can": "admin-list",
+        "submenu": [
+            {
+                "text": "Form",
+                "url": "settings\/components",
+                "icon": "far fa-caret-square-right",
+                "can": "admin-list"
+            }
+        ]
     }
 ]
