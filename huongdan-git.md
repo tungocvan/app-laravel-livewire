@@ -23,3 +23,8 @@ git checkout main
 git add .
 git commit -m "Your commit message"
 git push --force origin main
+
+ +Liệt kê các commit
+git log --oneline
++Phục hồi lại commit
+git reset --hard <commit-hash> (commit-hash là các mã số: dbd59da)

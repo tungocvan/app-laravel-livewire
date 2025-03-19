@@ -568,6 +568,36 @@ return [
                     'location' => 'vendor/summernote/summernote-bs4.min.css',
                 ],
             ],
+        ], //https://github.com/CodeSeven/toastr
+        'Toastr' => [
+            'active' => false,
+            'files' => [
+                [
+                    'type' => 'js',
+                    'asset' => true,
+                    'location' => '//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js',
+                ],
+                [
+                    'type' => 'css',
+                    'asset' => true,
+                    'location' => '//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css',
+                ],
+            ],
+        ],
+        'Dropzone' => [
+            'active' => false,
+            'files' => [
+                [
+                    'type' => 'js',
+                    'asset' => true,
+                    'location' => '//adminlte.io/themes/v3/plugins/dropzone/min/dropzone.min.js',
+                ],
+                [
+                    'type' => 'css',
+                    'asset' => true,
+                    'location' => '//adminlte.io/themes/v3/plugins/dropzone/min/dropzone.min.css',
+                ],
+            ],
         ],
     ],
 
