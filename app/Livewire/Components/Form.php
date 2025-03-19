@@ -11,7 +11,7 @@ class Form extends Component
     public $email = '';
     public $password = '';
     public function handleSubmit($data){
-        dd($data);
+       // dd($data);
     }
     // public function save(){
     //     dd($this->category);
@@ -24,6 +24,6 @@ class Form extends Component
     {
     
         $this->showModal = false;
-        dd($this->email,$this->password);
+       // dd($this->email,$this->password);
     }
 }
