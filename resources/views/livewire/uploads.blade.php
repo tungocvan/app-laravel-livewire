@@ -1,13 +1,15 @@
 <?php
 
 use Livewire\Volt\Component;
-use Livewire\WithFileUploads;
-use Livewire\Attributes\Validate;
+//use Livewire\WithFileUploads;
+//use Livewire\Attributes\Validate;
 
 new class extends Component {
-    use WithFileUploads;
-     #[Validate('image|max:1024')] // 1MB Max
-     public $photo;
+    ////use WithFileUploads;
+    
+     public $dataUrl=null;
+     public $filename='';
+     public $filesize=null;
      public $successMessage;
 
      public function save($file)
@@ -17,8 +19,10 @@ new class extends Component {
         // Kiểm tra xem có dữ liệu trong file không
         if (isset($file[0]['dataURL'])) {
             // Tạo một tên tệp và lưu trữ tệp từ base64
+            $this->dataUrl = $file[0]['dataURL'];
             $data = $file[0]['dataURL'];
-            $filename = $file[0]['upload']['filename'];
+            $this->filename = $file[0]['upload']['filename'];
+            $this->filesize = $file[0]['upload']['total'];
 
             // Tách base64 và loại bỏ phần không cần thiết
             list($type, $data) = explode(';', $data);
@@ -26,7 +30,7 @@ new class extends Component {
             $data = base64_decode($data);
 
             // Lưu tệp vào thư mục 'photos'
-            file_put_contents(public_path('photos/' . $filename), $data);
+            file_put_contents(public_path('photos/' . $this->filename), $data);
             
             // Thiết lập thông báo thành công
             $this->successMessage = 'Ảnh đã được tải lên thành công!';
@@ -47,7 +51,7 @@ new class extends Component {
           <div id="actions" class="row">
             <div class="col-lg-6">
               <div class="btn-group w-100">
-                <span class="btn btn-success col fileinput-button" x-on:click="open = ! open" >
+                <span class="btn btn-success col fileinput-button">
                   <i class="fas fa-plus"></i>
                   <span>Add files</span>
                 </span>
@@ -73,20 +77,28 @@ new class extends Component {
             <div id="template" class="row mt-2">
               
               <div class="col-auto">
-                  <span class="preview">                                                       
-                        <img src="{{ asset('data:,') }}" alt="" data-dz-thumbnail />                                                              
+                  <span class="preview">             
+                      @if ($dataUrl)
+                      <img src="{{ $dataUrl }}" alt="" width="80px" height="80px" />  
+                      @else
+                        <img src="{{ asset('/') }}" alt="" data-dz-thumbnail />   
+                      @endif                                          
+                                                                                   
                  </span>
               </div>
               <div class="col d-flex align-items-center">
+                  @if($filesize)
                   <p class="mb-0">
-                    <span class="lead" data-dz-name></span>
-                    (<span data-dz-size></span>)
+                    <span class="lead">{{$filename}}</span>
+                    (<span>{{ $filesize }}</span>)
                   </p>
+                  @endif
                   <strong class="error text-danger" data-dz-errormessage></strong>
               </div>
-              <div class="col-4 d-flex align-items-center">
+              <div class="col-4 d-flex align-items-center" >
                   <div class="progress progress-striped active w-100" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-                    <div class="progress-bar progress-bar-success" style="width:0%;" data-dz-uploadprogress></div>
+                    <div  wire:loading class="progress-bar progress-bar-success" style="width:100%;" data-dz-uploadprogress></div>
+
                   </div>
               </div>
               <div class="col-auto d-flex align-items-center">
@@ -109,19 +121,23 @@ new class extends Component {
           </div>
         </div>
         <!-- /.card-body -->
-        <div class="card-footer">
-          Visit <a href="{{ asset('https://www.dropzonejs.com') }}">dropzone.js documentation</a> for more examples and information about the plugin.
+        @if ($successMessage)
+        <div class="card-footer success">
+          {{ $successMessage }}
         </div>
+        @endif
       </div>
-      <!-- /.card -->
     </div>
     
     @script
     <script>
-        var show  = false   
+         
         document.addEventListener('livewire:initialized', () => {
+          
         // DropzoneJS Demo Code Start
       Dropzone.autoDiscover = false
+     
+        
       
     // Get the template HTML and remove it from the doumenthe template HTML and remove it from the doument
     var previewNode = document.querySelector("#template")
@@ -141,14 +157,13 @@ new class extends Component {
     })
     
     
-
     myDropzone.on("addedfile", function(file) {
       // Hookup the start button
       file.previewElement.querySelector(".start").onclick = function() {
         console.log('start'); 
-        $wire.open = true;
+        //myDropzone.enqueueFile(file) 
         $wire.save([file])    
-     // myDropzone.enqueueFile(file) 
+        
     }
     })
     
@@ -173,8 +188,13 @@ new class extends Component {
     // The "add files" button doesn't need to be setup because the config
     // `clickable` has already been specified.
     document.querySelector("#actions .start").onclick = function() {
-       console.log('start upload');
+        console.log('start upload');
         //myDropzone.enqueueFiles(myDropzone.getFilesWithStatus(Dropzone.ADDED))
+        //$wire.save(myDropzone.getFilesWithStatus(Dropzone.ADDED))
+        files = myDropzone.getFilesWithStatus(Dropzone.ADDED)
+        files.forEach(file => {
+          $wire.save([file]);
+        });
     }
     document.querySelector("#actions .cancel").onclick = function() {
       myDropzone.removeAllFiles(true)
