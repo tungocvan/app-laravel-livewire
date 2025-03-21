@@ -584,18 +584,13 @@ return [
                 ],
             ],
         ],
-        'Dropzone' => [
+        'BsCustomFileInput' => [
             'active' => false,
             'files' => [
                 [
                     'type' => 'js',
                     'asset' => true,
-                    'location' => '//adminlte.io/themes/v3/plugins/dropzone/min/dropzone.min.js',
-                ],
-                [
-                    'type' => 'css',
-                    'asset' => true,
-                    'location' => '//adminlte.io/themes/v3/plugins/dropzone/min/dropzone.min.css',
+                    'location' => 'vendor/bs-custom-file-input/bs-custom-file-input.min.js',
                 ],
             ],
         ],

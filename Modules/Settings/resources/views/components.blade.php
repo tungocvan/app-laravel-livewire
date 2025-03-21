@@ -3,7 +3,7 @@
 @section('plugins.Summernote', true)
 @section('plugins.TempusDominusBs4', true)
 @section('plugins.Toastr', true)
-@section('plugins.Dropzone', true)
+@section('plugins.BsCustomFileInput', true)
 {{-- @section('plugins.Datatables', true) --}}
 {{-- @section('plugins.DatatablesPlugins', true) --}}
 @section('title', 'Settings')
