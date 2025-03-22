@@ -13,7 +13,8 @@
 @stop
 
 @section('content')
-    @livewire('components.form')
+    {{-- @livewire('components.form') --}}
+    @livewire('image-uploader')
 @stop
 
 @section('css')
@@ -27,5 +28,5 @@
     <script> console.log("Hi, I'm using the Laravel-AdminLTE package!"); </script>
 
     {{-- <script src="https://cdn.jsdelivr.net/npm/bs-stepper/dist/js/bs-stepper.min.js"></script> --}}
-   
+
 @stop

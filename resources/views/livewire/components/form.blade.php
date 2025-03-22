@@ -290,7 +290,7 @@
 
 
 
-@livewire('uploads')
+<livewire:image-uploader />
 
   <!-- /.row -->
 </div>

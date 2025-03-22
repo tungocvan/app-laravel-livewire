@@ -31,7 +31,7 @@
         }
      
         </style>
-        @livewireStyles
+        @livewireStyles 
     </head>
     <body>
         @yield('content')
