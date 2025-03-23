@@ -37,3 +37,7 @@ Route::middleware(['auth'])->prefix('/admin')->name('admin.')->group(function(){
 Route::get('notifications/get',[NotificationsController::class, 'getNotificationsData'])->name('notifications.get');
 Route::get('navbar/search',[SearchController::class,'showNavbarSearchResults']);
 Route::post('navbar/search',[SearchController::class,'showNavbarSearchResults']);
+
+Route::group(['prefix' => 'laravel-filemanager', 'middleware' => ['web', 'auth']], function () {
+    \UniSharp\LaravelFilemanager\Lfm::routes();
+});

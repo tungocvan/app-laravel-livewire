@@ -4,6 +4,7 @@
 @section('plugins.TempusDominusBs4', true)
 @section('plugins.Toastr', true)
 @section('plugins.BsCustomFileInput', true)
+@section('plugins.FileManager', true)
 {{-- @section('plugins.Datatables', true) --}}
 {{-- @section('plugins.DatatablesPlugins', true) --}}
 @section('title', 'Settings')
@@ -14,7 +15,8 @@
 
 @section('content')
     {{-- @livewire('components.form') --}}
-    @livewire('image-uploader')
+    {{-- @livewire('image-uploader') --}}
+    @livewire('files.file-manager')
 @stop
 
 @section('css')

@@ -594,6 +594,16 @@ return [
                 ],
             ],
         ],
+        'FileManager' => [
+            'active' => false,
+            'files' => [
+                [
+                    'type' => 'js',
+                    'asset' => true,
+                    'location' => '/vendor/laravel-filemanager/js/stand-alone-button.js',
+                ],
+            ],
+        ],
     ],
 
     /*
