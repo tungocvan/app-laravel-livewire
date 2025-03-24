@@ -10,11 +10,13 @@ class FileManager extends Component
     public function updatedContent(){
        // dd($this->content);
        $this->js("alert('updatedContent')");
+       
     } 
     
     public function hanlderSubmit(){
         //dd($this->content);
-        $this->js("alert('hanlderSubmit')"); 
+        //$this->js("alert('hanlderSubmit')"); 
+        //return $this->content;
     } 
     
 
