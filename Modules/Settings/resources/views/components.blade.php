@@ -16,7 +16,11 @@
 @section('content')
     {{-- @livewire('components.form') --}}
     {{-- @livewire('image-uploader') --}}
-    @livewire('files.file-manager')
+    @livewire('files.file-manager',['name' => 'question','label' => 'Nhập nội dung'])
+    {{-- <div id="question-content" class="border p-2 mt-2 bg-light"></div> --}}
+    
+    {{-- @livewire('component', ['user' => $user], key($user->id)) --}}
+  
 @stop
 
 @section('css')

@@ -8,7 +8,7 @@ class TextEditor extends Component
 {
     public $name;
     public $label;
-    public $labelClass;
+    public $labelClass; 
     public $config;
 
     /**

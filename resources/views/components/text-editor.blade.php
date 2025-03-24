@@ -11,10 +11,12 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         function editorSummerNote(id) {
+            console.log('id:',id);
             let data = ''; // Biến lưu nội dung của trình soạn thảo
             let editor = $('#' + id);
             editor.on('summernote.change', function(_, contents) {
                 data = contents; // Cập nhật nội dung vào biến
+                console.log('data:',data);
                 $('#' + id + '-content').html(data); // Hiển thị nội dung đã nhập
             });
 
@@ -23,7 +25,7 @@
                 @this.set(id, data);
             });
         }
-
+        
         editorSummerNote("{{ $name }}");
     });
 
