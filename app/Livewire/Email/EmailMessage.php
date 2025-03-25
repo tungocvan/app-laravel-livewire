@@ -9,6 +9,8 @@ class EmailMessage extends Component
 {
     use WithFileUploads;
     public $photo;
+    public $photos = []; // Mảng file upload
+    public $uploadedFiles = []; // Lưu tên file sau khi upload
     public $to;
     public $subject;
     public function save()
@@ -20,7 +22,44 @@ class EmailMessage extends Component
 
         return response()->json(['error' => 'Không có file!'], 400);
     }
+    public function uploadFiles()
+    {
+        // Kiểm tra xem có file nào không
+        // if (empty($this->photos)) {
+        //     $this->dispatchBrowserEvent('upload-error', ['message' => 'Vui lòng chọn file!']);
+        //     return;
+        // }
+
+        // Validate tất cả các file
+        $this->validate([
+            'photos.*' => 'file|max:10240', // Mỗi file tối đa 10MB
+        ]);
+
+        foreach ($this->photos as $index => $photo) {
+            if (!isset($this->uploadedFiles[$index])) {
+                $this->uploadImage($index);
+            }
+        }
+
     
+
+        // Gửi sự kiện về client báo upload thành công
+        // $this->dispatchBrowserEvent('upload-success', ['files' => $this->uploadedFiles]);
+    }
+    public function uploadImage($index)
+    {
+        if (!isset($this->photos[$index]) || isset($this->uploadedFiles[$index])) return;
+
+        $photo = $this->photos[$index];
+        $filename = $photo->getClientOriginalName();
+
+        // Lưu file vào storage/public/uploads
+        $path = $photo->storeAs($this->pathDirectory, $filename, 'public');
+
+        // Lưu trạng thái đã upload
+        $this->uploadedFiles[$index] = $path;
+        $this->messages[] = "Ảnh '{$filename}' đã upload thành công!";
+    }
     public function SendMail($data){
         // dd($data);
        // dd($this->to);
