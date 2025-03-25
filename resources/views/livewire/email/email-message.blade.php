@@ -16,14 +16,14 @@
     <div class="form-group">
         <div class="btn btn-default btn-file">      
            <i class="fas fa-paperclip"></i> <span>Attachment</span> 
-          <input type="file" id="photoInput"  x-on:change="uploadFiles" multiple>          
+          <input wire:model="photos" type="file" id="photoInput"  x-on:change="uploadFiles" multiple>          
         </div>
                   
         <template x-if="attachmentNames.length > 0">
-            <template x-for="item in attachmentNames">    
-                <div class="mx-2">
+            <template x-for="(item, index) in attachmentNames">    
+                <div class="mx-2 attach-item" style="display: contents">
                     <i class="fas fa-paperclip" x-text="item"></i>
-                    <button class="btn-sm btn-outline-danger">X</button>
+                    <button x-on:click="deleteItem(index)" class="btn-sm btn-outline-danger">X</button>
                 </div>
             </template>
         </template> 
@@ -43,48 +43,30 @@
                     console.log('res:',res);
                 });
             },
-            // uploadFile(){
-            //     let fileInput = document.querySelector('#photoInput');
-            //     if (!fileInput || !fileInput.files[0]) {
-            //         alert('Vui lòng chọn file!');
-            //         return;
-            //     }
-
-            //     let file = fileInput.files[0];
-            //     this.attachmentName = file.name;
-            //     console.log('file:',file.name);
-            //     // Kiểm tra Livewire có tồn tại trước khi gọi upload
-            //     if (typeof $wire !== "undefined") {
-            //         $wire.upload('photo', file, (uploadedFilename) => {
-            //             console.log('Upload thành công:', uploadedFilename);
-            //         }, (error) => {
-            //             console.error('Lỗi upload:', error);
-            //         });
-            //     } else {
-            //         console.error('Lỗi: $wire chưa được khởi tạo!');
-            //     }
-
-            // },
             uploadFiles() {
                 let fileInput = document.querySelector('#photoInput');
                 if (!fileInput || fileInput.files.length === 0) {
                     alert('Vui lòng chọn file!');
                     return;
                 }
-
+        
                 let files = Array.from(fileInput.files); // Chuyển NodeList thành mảng
 
-                files.forEach(file => {
-                    
-                    $wire.upload('photos', file, (uploadedFilename) => {
-                        console.log('Upload thành công:', uploadedFilename);
-                       this.attachmentNames.push(file.name)
+                $wire.uploadMultiple('photos', files, (uploadedFilename) => {                       
+                        $wire.call('saveFiles').then(() => {
+                            files.forEach(file => {
+                                this.attachmentNames.push(file.name)
+                            })
+                        });
+
                     }, (error) => {
                         console.error('Lỗi upload:', error);
                     });
-                });
+            },
+            deleteItem(index){
+                console.log('index:',index);
+                this.attachmentNames.splice(index,1)
             }
-
 
         })
         );

@@ -9,26 +9,28 @@ class EmailMessage extends Component
 {
     use WithFileUploads;
     public $photo;
-    public $photos = []; // Mảng file upload
+    public $photos; // Mảng file upload
     public $uploadedFiles = []; // Lưu tên file sau khi upload
+    public $pathDirectory= 'uploads';
+    public $messages = []; // Thông báo
     public $to;
     public $subject;
-    public function save()
-    {
-        if ($this->photo) {
-            $path = $this->photo->store('photos', 'public'); // Lưu file vào storage/app/public/photos
-            return response()->json(['message' => 'Upload thành công!', 'path' => $path]);
-        }
+    // public function save()    {
+       
+    //     if ($this->photo) {
+    //         $path = $this->photo->store('photos', 'public'); // Lưu file vào storage/app/public/photos
+    //         return response()->json(['message' => 'Upload thành công!', 'path' => $path]);
+    //     }
 
-        return response()->json(['error' => 'Không có file!'], 400);
-    }
-    public function uploadFiles()
+    //     return response()->json(['error' => 'Không có file!'], 400);
+    // }
+    public function saveFiles()
     {
         // Kiểm tra xem có file nào không
-        // if (empty($this->photos)) {
-        //     $this->dispatchBrowserEvent('upload-error', ['message' => 'Vui lòng chọn file!']);
-        //     return;
-        // }
+        if (empty($this->photos)) {
+            $this->messages[] = "Vui lòng chọn file!";
+            return;
+        }
 
         // Validate tất cả các file
         $this->validate([
@@ -41,7 +43,7 @@ class EmailMessage extends Component
             }
         }
 
-    
+        //dd($this->uploadedFiles); // "uploads/cccd-matsau.jpg"
 
         // Gửi sự kiện về client báo upload thành công
         // $this->dispatchBrowserEvent('upload-success', ['files' => $this->uploadedFiles]);
@@ -63,6 +65,7 @@ class EmailMessage extends Component
     public function SendMail($data){
         // dd($data);
        // dd($this->to);
+       dd($this->uploadedFiles);
         $to = $this->to ?? 'tungocvan@gmail.com';   
         $cc = '';    
         $content = $data ?? '<h3>This is test mail<h3>';
