@@ -290,10 +290,20 @@
 
 
 
-<livewire:image-uploader />
+{{-- <livewire:image-uploader /> --}}
+    {{-- @livewire('files.file-manager',['name' => 'question','label' => 'Nhập nội dung','height' => '300']) --}}
+    {{-- @livewire('files.file-manager',['height' => '300'])
+    <button type="button" class="btn btn-primary" onclick="save()">Submit</button> --}}
+    @livewire('email.email-message')
 
   <!-- /.row -->
 </div>
-
+ <script>
+        //  function save() {
+          
+        //     let data = $(`#question-content`).val();
+        //     console.log('data:',data);
+        //  }
+</script>
 
 </div>

@@ -14,11 +14,13 @@
 @stop
 
 @section('content')
-    {{-- @livewire('components.form') --}}
+    @livewire('components.form')
     {{-- @livewire('image-uploader') --}}
-    @livewire('files.file-manager',['name' => 'question','label' => 'Nhập nội dung'])
+    {{-- @livewire('files.file-manager',['name' => 'question','label' => 'Nhập nội dung'])
+    <button type="button" class="btn btn-primary" onclick="save()">Submit</button> --}}
+    {{-- @livewire('files.file-manager') --}}
     {{-- <div id="question-content" class="border p-2 mt-2 bg-light"></div> --}}
-    
+    {{-- <input id="question-content" type="text"> --}}
     {{-- @livewire('component', ['user' => $user], key($user->id)) --}}
   
 @stop
@@ -34,5 +36,12 @@
     <script> console.log("Hi, I'm using the Laravel-AdminLTE package!"); </script>
 
     {{-- <script src="https://cdn.jsdelivr.net/npm/bs-stepper/dist/js/bs-stepper.min.js"></script> --}}
+    {{-- <script>
+         function save() {
+          
+            let data = $(`#question-content`).val();
+            console.log('data:',data);
+         }
+    </script> --}}
 
 @stop

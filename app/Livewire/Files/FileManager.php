@@ -6,8 +6,9 @@ use Livewire\Component;
 class FileManager extends Component
 {
     public $content="";
-    public $name="";
+    public $name;
     public $label='';
+    public $height='200';
     public $labelClass= 'text-dark'; 
     public $config = [
         "height" => "200",
@@ -25,12 +26,17 @@ class FileManager extends Component
         ],
     ];
 
-    // public function mount() {
-    //     if(!$this->name==""){
-    //         $this->name = "editor-" . rand(1,9);
-    //     }
-        
-    // }
+    public function mount(){ 
+        $this->config['height'] = $this->height;
+        if(!$this->name){
+            $this->name = 'editor_' . rand(0, 9999);
+        }        
+    }
+
+
+    public function hanlderSubmit($data) {
+         return $data;       
+    }
   
     public function render()
     {
