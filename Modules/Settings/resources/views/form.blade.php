@@ -1,5 +1,5 @@
 @extends('adminlte::page')
-{{-- @section('plugins.Select2', true) --}}
+@section('plugins.Select2', true)
 {{-- @section('plugins.Summernote', true) --}}
 {{-- @section('plugins.TempusDominusBs4', true) --}} 
 {{-- @section('plugins.Toastr', true) --}}
@@ -35,6 +35,7 @@
 @section('js')
      {{-- https://www.daterangepicker.com/#examples  --}}
     <script> console.log("Hi, I'm using the Laravel-AdminLTE package!"); </script>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     {{-- <script src="https://cdn.jsdelivr.net/npm/bs-stepper/dist/js/bs-stepper.min.js"></script> --}}
     {{-- <script>
