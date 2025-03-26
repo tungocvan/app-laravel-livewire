@@ -1,4 +1,16 @@
 <div>
+    @livewire('email.attach-file')
+    <div class="input-group">
+        <span class="input-group-btn">
+          <a id="lfm" data-input="thumbnail" data-preview="holder" class="btn btn-primary">
+            <i class="fa fa-picture-o"></i> Choose
+          </a>
+        </span>
+        <input id="thumbnail" class="form-control" type="text" name="filepath">
+    </div>
+    <div id="holder" style="margin-top:15px;max-height:100px;"></div>
+    
+    <hr>
     <div>
        <div wire:ignore x-data="{ name: 'editor_' + Math.floor(Math.random() * 10000) }">              
                <x-adminlte-text-editor name="{{ $name }}" id="{{ $name }}"  label="{{ $label }}" label-class="text-danger"
@@ -8,8 +20,9 @@
                
        </div> 
      </div>
-
-
+    
+    <hr> 
+   
      @script
        <script>        
           
@@ -70,6 +83,9 @@
                        }
                    }
                });   
+
+               var route_prefix = "/laravel-filemanager";
+               $('#lfm').filemanager('file', {prefix: route_prefix});
            })
        </script>
      @endscript

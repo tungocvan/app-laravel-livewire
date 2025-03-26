@@ -57,7 +57,19 @@
         "submenu": [
             {
                 "text": "Form",
-                "url": "settings\/components",
+                "url": "settings\/components\/form",
+                "icon": "far fa-caret-square-right",
+                "can": "admin-list"
+            },
+            {
+                "text": "Email",
+                "url": "settings\/components\/email",
+                "icon": "far fa-caret-square-right",
+                "can": "admin-list"
+            },
+            {
+                "text": "File Manager",
+                "url": "settings\/components\/file-manager",
                 "icon": "far fa-caret-square-right",
                 "can": "admin-list"
             }

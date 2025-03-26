@@ -14,16 +14,14 @@ class EmailMessage extends Component
     public $pathDirectory= 'uploads';
     public $messages = []; // Thông báo
     public $to;
+    public $cc;
+    public $bcc;
     public $subject;
-    // public function save()    {
-       
-    //     if ($this->photo) {
-    //         $path = $this->photo->store('photos', 'public'); // Lưu file vào storage/app/public/photos
-    //         return response()->json(['message' => 'Upload thành công!', 'path' => $path]);
-    //     }
-
-    //     return response()->json(['error' => 'Không có file!'], 400);
-    // }
+ 
+    public function deleteIndex($index){
+        array_splice($this->uploadedFiles,$index,1);
+        //dd($this->uploadedFiles);
+    }
     public function saveFiles()
     {
         // Kiểm tra xem có file nào không
@@ -62,25 +60,75 @@ class EmailMessage extends Component
         $this->uploadedFiles[$index] = $path;
         $this->messages[] = "Ảnh '{$filename}' đã upload thành công!";
     }
-    public function SendMail($data){
-        // dd($data);
-       // dd($this->to);
-       dd($this->uploadedFiles);
-        $to = $this->to ?? 'tungocvan@gmail.com';   
-        $cc = '';    
-        $content = $data ?? '<h3>This is test mail<h3>';
-        $subject = $this->subject ?? 'Email send from tungocvan1@gmail.com'; 
-        try {
-            Mail::html($content , function ($message) use ($to,$cc,$content, $subject) {
-                $message->to($to)
-                        ->subject($subject);
-            });
-        } catch (\Exception $e) {
-            return 'Đã gửi mail thất bại';
+  
+    public function SendMail($data)
+{
+    $attachments = [];
+
+    // Kiểm tra file đính kèm
+    if (!empty($this->uploadedFiles)) {
+        foreach ($this->uploadedFiles as $file) {
+            $filePath = storage_path("app/public/" . $file);
+            if (file_exists($filePath)) {
+                $attachments[] = $filePath;
+            }
         }
+    }
+
+    // Chuyển danh sách email thành mảng nếu là chuỗi
+    $to = is_string($this->to) ? array_map('trim', explode(';', $this->to)) : $this->to;
+    $to = array_filter($to, function ($email) {
+        return filter_var($email, FILTER_VALIDATE_EMAIL);
+    });
+
+    if (empty($to)) {
+        $this->dispatchBrowserEvent('alert', ['message' => 'Email gửi đi không hợp lệ']);
+        return;
+    }
+
+    
+    // Kiểm tra CC
+    $cc = [];
+    if (!empty($this->cc)) {
+        $cc = is_string($this->cc) ? array_map('trim', explode(';', $this->cc)) : $this->cc;
+        $cc = array_filter($cc, function ($email) {
+            return filter_var($email, FILTER_VALIDATE_EMAIL);
+        });
+    }
+
+    // Kiểm tra BCC
+    $bcc = [];
+    if (!empty($this->bcc)) {
+        $bcc = is_string($this->bcc) ? array_map('trim', explode(';', $this->bcc)) : $this->bcc;
+        $bcc = array_filter($bcc, function ($email) {
+            return filter_var($email, FILTER_VALIDATE_EMAIL);
+        });
+    }
+
+    // Nội dung và tiêu đề email
+    $content = $data ?? '<h3>This is test mail</h3>';
+    $subject = $this->subject ?? 'Email sent from tungocvan1@gmail.com';
+
+    try {
+        Mail::html($content, function ($message) use ($to, $cc, $bcc, $subject, $attachments) {
+            $message->to($to);
+            if (!empty($cc)) $message->cc($cc);
+            if (!empty($bcc)) $message->bcc($bcc);
+            $message->subject($subject);
+
+            // Đính kèm file
+            foreach ($attachments as $file) {
+                $message->attach($file);
+            }
+        });
 
         return 'Đã gửi mail thành công';
+    } catch (\Exception $e) {
+        return 'Đã gửi mail thất bại: ' . $e->getMessage();
     }
+}
+
+
     public function render()
     {
         return view('livewire.email.email-message');

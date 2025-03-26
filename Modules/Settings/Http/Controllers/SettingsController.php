@@ -37,5 +37,18 @@ class SettingsController extends Controller
     {
         return view('Settings::components');
     }
+    public function form()
+    {
+        return view('Settings::form');
+    }
+    public function email()
+    {
+        return view('Settings::email');
+    }
+    public function fileManager()
+    {
+        return view('Settings::file-manager');
+    }
 
 }
+ 

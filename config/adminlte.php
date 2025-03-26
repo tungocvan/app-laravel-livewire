@@ -536,7 +536,7 @@ return [
         ],
         'DateRangePicker' => [
             'active' => false,
-            'files' => [
+            'files' => [                
                 [
                     'type' => 'js',
                     'asset' => true,
