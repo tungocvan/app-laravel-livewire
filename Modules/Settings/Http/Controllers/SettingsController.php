@@ -49,6 +49,10 @@ class SettingsController extends Controller
     {
         return view('Settings::file-manager');
     }
+    public function tables()
+    {
+        return view('Settings::tables');
+    }
 
 }
  

@@ -72,6 +72,12 @@
                 "url": "settings\/components\/file-manager",
                 "icon": "far fa-caret-square-right",
                 "can": "admin-list"
+            },
+            {
+                "text": "Tables Manager",
+                "url": "settings\/components\/tables",
+                "icon": "far fa-caret-square-right",
+                "can": "admin-list"
             }
         ]
     }
