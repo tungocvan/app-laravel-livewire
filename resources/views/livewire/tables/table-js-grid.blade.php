@@ -1,4 +1,4 @@
-<div>
+<div x-data="tablesData">
 
     <div class="row">
       <div class="col-md-12"><div id="jsGrid"></div></div>
@@ -10,42 +10,15 @@
    @script
    <script>
     Alpine.data("tablesData", () => ({
-        init(){
-            
-            $("#detailsDialog").dialog({
-            autoOpen: false,
-            width: 400,
-            close: function() {
-                $("#detailsForm").validate().resetForm();
-                $("#detailsForm").find(".error").removeClass("error");
-            }
-            });
-        
-            $("#detailsForm").validate({
-                rules: {
-                    name: "required",
-                    age: { required: true, range: [18, 150] },
-                    address: { required: true, minlength: 10 },
-                    country: "required"
-                },
-                messages: {
-                    name: "Please enter name",
-                    age: "Please enter valid age",
-                    address: "Please enter address (more than 10 chars)",
-                    country: "Please select country"
-                },
-                submitHandler: function() {
-                    formSubmitHandler();
-                }
-            });
-        }
+        init(){                                  
+        }     
     }))  
     
-    document.addEventListener('livewire:initialized', async () => {   
-
+    document.addEventListener('livewire:initialized',async () => {   
+        
         var clients = await $wire.getClients().then(res => res.original)        
         var country = await $wire.getCountry().then(res => res.original)      
-        console.log(clients);  
+      //  console.log(clients);  
         
         var selectedItems = [];
  
@@ -81,62 +54,75 @@
         };
 
     
-        var formSubmitHandler = $.noop;
+       
+    
         
-        var showDetailsDialog = function(dialogType, client) {
-            $("#name").val(client.Name);
-            $("#age").val(client.Age);
-            $("#address").val(client.Address);
-            $("#country").val(client.Country);
-            $("#married").prop("checked", client.Married);
 
-            formSubmitHandler = function() {
-                saveClient(client, dialogType === "Add");
-            };
-
-            $("#detailsDialog").dialog("option", "title", dialogType + " Client")
-                    .dialog("open");
-        };
-
-        var saveClient = function(client, isNew) {
-            $.extend(client, {
-                Name: $("#name").val(),
-                Age: parseInt($("#age").val(), 10),
-                Address: $("#address").val(),
-                Country: parseInt($("#country").val(), 10),
-                Married: $("#married").is(":checked")
-            });
-
-            $("#jsGrid").jsGrid(isNew ? "insertItem" : "updateItem", client);
-
-            $("#detailsDialog").dialog("close");
-        };
- 
     $("#jsGrid").jsGrid({
         width: "100%",
         height: "100%",
-        
+        autosearch: true,
+        readOnly: false,
         filtering: true,
         inserting: true,
         editing: true,
         sorting: true,
-        confirmDeleting: false,
+        confirmDeleting: true,
         paging: true,
         autoload: true,        
         pageSize: 10,
         pageButtonCount: 5,
- 
+        
+        
+     
         deleteConfirm: function(item) {
-            return "The client \"" + item.Name + "\" will be removed. Are you sure?";
+            return "The client \"" + item.name + "\" will be removed. Are you sure?";
+        },
+
+        rowDoubleClick: function(args) {
+            // showDetailsDialog("Edit", args.item);
+            //console.log('cập nhật row:',args.item);
+            $("#jsGrid").jsGrid("editItem", args.item);
+            
         },
         rowClick: function(args) {
-            showDetailsDialog("Edit", args.item);
+            // showDetailsDialog("Edit", args.item);
+            // console.log('cập nhật data:',this.data);
             console.log('cập nhật row:',args.item);
+           // $("#jsGrid").jsGrid("editItem", args.item);
+            
         },
-        //controller: db,
+
+        onItemInserted: function(args) {
+        // cancel insertion of the item with empty 'name' field
+            console.log('onItemInserted:',args.item);
+            if(args.item.name === "") {
+                args.cancel = true;
+                alert("Specify the name of the item!");
+            }
+        },
+        onItemUpdated: function(args) {
+        // cancel insertion of the item with empty 'name' field
+            console.log('onItemUpdated:');
+            if(args.item.name === "") {
+                args.cancel = true;
+                alert("Specify the name of the item!");
+            }
+        },
+
+        onItemDeleted: function(args) {
+        // cancel insertion of the item with empty 'name' field
+            console.log('onItemDeleted');
+           
+            // if(args.item.name === "") {
+            //     args.cancel = true;
+            //     alert("Specify the name of the item!");
+            // }
+        },
+        
+                //controller: db,
         data:clients,
-        
-        
+             
  
         fields: [
             {
@@ -156,13 +142,22 @@
                 align: "center",
                 width: 50
             },
-            { name: "name", type: "text", title:"Name" , width: 150, validate: "required" },
-            { name: "age", type: "number", width: 50 },
+            { name: "name", type: "text", title:"Name" , width: 150, validate: "required"  },
+            { 
+                name: "age", type: "number", width: 50,
+                validate: {
+                    validator: "range",
+                    message: function(value, item) {
+                        return "The client age should be between 18 and 99. Entered age is \"" + value + "\" is out of specified range.";
+                    },
+                    param: [18, 99]
+                }
+            },
             { name: "address", type: "text", width: 200 },
             { name: "country_id", type: "select", title:"Country" , items: country, valueField: "id", textField: "name" },
             { name: "married", type: "checkbox", title: "Is Married", sorting: false },
             {
-                type: "control"          
+                type: "control",               
             }
             // {
             //     type: "control",
@@ -176,8 +171,10 @@
             //     }
             // }
         ]
-    });   
+    });  
+ 
    });
+
    </script>
    
     @endscript
