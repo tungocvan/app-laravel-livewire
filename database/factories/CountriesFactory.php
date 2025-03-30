@@ -3,11 +3,11 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use App\Models\Country;
+use App\Models\Countries;
 
-class CountryFactory extends Factory
+class CountriesFactory extends Factory
 {
-    protected $model = Country::class;
+    protected $model = Countries::class;
 
     public function definition(): array
     {

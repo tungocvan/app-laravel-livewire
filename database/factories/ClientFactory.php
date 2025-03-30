@@ -16,7 +16,7 @@ class ClientFactory extends Factory
             'age' => $this->faker->numberBetween(18, 65),
             'address' => $this->faker->address(),
             'married' => $this->faker->boolean(),
-            'country_id' => \App\Models\Country::inRandomOrder()->first()->id ?? 1,
+            'country_id' => \App\Models\Countries::inRandomOrder()->first()->id ?? 1,
         ];
     }
 }
