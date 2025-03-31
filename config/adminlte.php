@@ -607,6 +607,11 @@ return [
         'jsGrid' => [
             'active' => false,
             'files' => [
+                // [
+                //     'type' => 'js',
+                //     'asset' => true,
+                //     'location' => '//code.jquery.com/jquery-3.6.0.min.js',
+                // ],
                 [
                     'type' => 'js',
                     'asset' => true,
