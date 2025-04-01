@@ -2,13 +2,13 @@
 
     <div class="row">      
       <div class="col-md-12 mb-2">
-            <button x-on:click="hanlderShow" class="btn btn-primary">Add</button>
+            <buttonx-data @click="$store.modal.toggle()" class="btn btn-primary">Add</button>
             
       </div>
       <div class="col-md-12"><div id="jsGrid"></div></div>
     </div>
+    <div class="modal fade show" x-data :class="$store.modal.show && 'd-block'" id="myModal">
 
-    <div x-transition class="modal fade show" :class="show ? '' :'d-block' " id="myModal">
         <!-- Overlay backdrop -->
         <div class="modal-backdrop fade show"></div>
       
@@ -17,16 +17,16 @@
           <div class="modal-content">
             <div class="modal-header">
               <h4 class="modal-title">Default Modal</h4>
-              <button x-on:click="show=true" type="button" class="close">
+              <button @click="$store.modal.show=false" type="button" class="close">
                 <span>&times;</span>
               </button>
             </div>
             <div class="modal-body">
-              <p>One fine body…</p>
+                <p>One fine body…</p>
             </div>
             <div class="modal-footer">
-              <button x-on:click="show=true" type="button" class="btn btn-default">Close</button>
-              <button x-on:click="show=true" type="button" class="btn btn-primary">Save changes</button>
+              <button @click="$store.modal.show=false"  type="button" class="btn btn-default">Close</button>
+              <button @click="$store.modal.show=false" type="button" class="btn btn-primary">Save changes</button>
             </div>
           </div>
         </div>
@@ -38,9 +38,21 @@
    
    @script
    <script>
-    Alpine.data("tablesData", () => ({
-        show:true,
-        init(){   
+    Alpine.data("tablesData", () => ({              
+        init(){                                            
+        }
+    }))  
+    
+    Alpine.store('modal', {
+        show: false,    
+        toggle() {
+            let content = `<h5>Add new</h5>`
+            $('#myModal .modal-body').html(content)
+            this.show = ! this.show            
+        }
+    })
+
+   document.addEventListener('livewire:initialized', () => {        
             var selectedItems = [];
             var filter = false; 
             var idCountry = 1;
@@ -76,7 +88,7 @@
             function openEditModal(item) {
                 // Điền dữ liệu vào modal
                 //hanlderShow()
-              console.log(this.show);
+               console.log(this.show);
             }
                 
         
@@ -142,19 +154,31 @@
                 
                 },
                 
+
                 // Thêm sự kiện khi hàng được chỉnh sửa
-                onItemEditing: function(args) {
-                    // Ngăn hành động chỉnh sửa mặc định
-                    args.cancel = true; // Ngăn không cho jsGrid mở form chỉnh sửa tự động
+                // onItemEditing: function(args) {
+                //     // Ngăn hành động chỉnh sửa mặc định
+                //     args.cancel = true; // Ngăn không cho jsGrid mở form chỉnh sửa tự động
 
-                    console.log('open modal here');
-                    //hanlderShow()
-                openEditModal(args.item);
-                    // Mở modal với dữ liệu của item được nhấn
-                // openEditModal(args.item);
-                },
+                //     console.log('open modal here');
+                //     //hanlderShow()
+              
+                //     // Mở modal với dữ liệu của item được nhấn
+                //    //openEditModal(args.item);
+                //    let {name,age} = args.item                                      
+                //    let content = `<h5>${name} - ${age}</h5>`
+                //    $('#myModal .modal-body').html(content)
+                //    $store.modal.show = true
+                // },
                 
-
+                onItemAddModal: function(args) {
+                    $store.modal.show = true
+                },
+                showDetail: function(item) {
+                        // Logic hiển thị chi tiết item
+                        console.log("Showing details for item:", item);
+                        // Mở modal hoặc thực hiện hành động khác để hiển thị chi tiết
+                },
                 //controller: db,
                 //data:clients,
                 data: @json($db),     
@@ -183,7 +207,8 @@
                     },
                     deleteItem: function(item) {
                         @this.deleteData(item.id);
-                    }
+                    },
+                    
                 },
 
                 fields: [
@@ -209,6 +234,21 @@
                         align: "center",
                         width: 50,
                     },
+                    {
+                        name: "All",
+                        title: "<input type='checkbox' id='selectAll'>", // Checkbox "All"
+                        width: 30,
+                        align: "center",
+                        itemTemplate: function(value, item) {
+                            return $("<input>")
+                                .attr("type", "checkbox")
+                                .addClass("row-checkbox")
+                                .on("change", function() {
+                                    // Logic để xử lý thay đổi checkbox cho hàng
+                                    console.log("Checkbox changed for item", item);
+                                });
+                        }
+                    },
                     { name: "name", type: "text", title:"Name" , width: 150, validate: "required", filtering: true  },
                     { 
                         name: "age", type: "number", width: 50, filtering: true,
@@ -225,27 +265,49 @@
                     { name: "married", type: "checkbox", title: "Is Married", sorting: false },          
                     {
                         type: "control",     
-                        modeSwitchButton: true,     
-                        searchButton: true,     
-                        editButton: true,     
-                        autosearch: true,    
-                        filtering: true,  
-                        searchModeButtonTooltip: "Switch to searching", 
-                        searchButtonTooltip: "Search",
+                        modeSwitchButton: true,                           
+                        editButton: true,                           
                         width: 150,
+                        itemTemplate: function(value, item) {
+                            // Tạo nút Detail
+                           //var controlButton = $(".jsgrid-control-field")
+                           // console.log(controlButton);
+                            var editButton  = $("<input>")
+                                .attr("class", "jsgrid-button jsgrid-edit-button")
+                                .attr("type", "button")
+                                .attr("title", "edit")                                
+                                .on("click", function() {
+                                    //editItem(item);
+                                    //$("#jsGrid").jsGrid("editItem", item);
+                                    let {name,age} = item                                      
+                                    let content = `<h5>${name} - ${age}</h5>`
+                                    $('#myModal .modal-body').html(content)
+                                    $store.modal.show = true
+                                });
+                            var deleteButton   = $("<input>")
+                                .attr("class", "jsgrid-button jsgrid-delete-button mx-2")
+                                .attr("type", "button")
+                                .attr("title", "delete")                                
+                                .on("click", function() {
+                                    @this.deleteData(item.id);
+                                });
+                            var detailButton = $("<input>")
+                                .attr("class", "jsgrid-button jsgrid-detail-button")
+                                .attr("type", "button")
+                                .attr("title", "detail")                                
+                                .on("click", function() {
+                                    // Logic hiển thị chi tiết ở đây
+                                     //showDetail(item);
+                                     console.log('Detail');
+                                });
+                            
+                            // Trả về nút Edit và Detail
+                            return $("<div>").append(editButton).append(detailButton).append(deleteButton);
+                        }
                     }
 
                 ]
-            });                                 
-        },
-        hanlderShow(){
-            console.log('hanlderShow');
-            this.show = !this.show
-        }    
-    }))  
-    
-    document.addEventListener('livewire:initialized', () => {        
-  
+            });    
  
    });
 
