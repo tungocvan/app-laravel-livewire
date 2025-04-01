@@ -57,7 +57,9 @@
             var filter = false; 
             var idCountry = 1;
             var selectItem = function(item) {
+               
                 selectedItems.push(item);
+                console.log('selectItem:',selectedItems);
             };
 
         
@@ -66,9 +68,11 @@
                 selectedItems = $.grep(selectedItems, function(i) {
                     return i !== item;
                 });
+                console.log('unselectItem:',selectedItems);
             };
 
             var deleteSelectedItems = function() {
+                // console.log(selectedItems);
                 if(!selectedItems.length || !confirm("Are you sure?"))
                     return;
 
@@ -92,7 +96,25 @@
             }
                 
         
+            $('#jsGrid').on('change', '#selectAll', function() {
+                console.log('selectAll');
+                var checked = $(this).is(':checked');
+                $(".row-checkbox").prop('checked', checked);            
             
+                // Duyệt qua tất cả các checkbox với class "row-checkbox"
+                
+                if(checked){
+                    $(".row-checkbox").each(function() {
+                    // Lấy id từ data-id
+                        var id = $(this).data('id'); // Sử dụng data-id để lấy ID
+                        if (id) {
+                            selectItem(id); // Thêm id vào mảng
+                        }
+                    });
+                }
+
+                
+            });
 
             $("#jsGrid").jsGrid({
                 width: "100%",
@@ -220,35 +242,39 @@
                                     });
                         },
                         itemTemplate: function(_, item) {
-                            return $("<input>").attr("type", "checkbox")
+                            return $("<input>").attr("type", "checkbox").attr("class", "row-checkbox").attr("data-id", `${item.id}`)
                                     .prop("checked", $.inArray(item, selectedItems) > -1)
                                     .on("change", function () {
-                                        $(this).is(":checked") ? selectItem(item) : unselectItem(item);
+                                        $(this).is(":checked") ? selectItem(item.id) : unselectItem(item.id);
                                     });
                         },
-                        filterValue: function() { 
-                            console.log('filterValue:',filter);
-            
+                        filterValue: function() {                             
+                                // Chọn phần tử checkbox đã cho
+                            var $checkbox = $('input[type="checkbox"][readonly]'); // Chọn checkbox có thuộc tính readonly
+
+                            // Kiểm tra xem phần tử đã có id chưa
+                            if ($checkbox.length > 0) {
+                                // Nếu checkbox tồn tại
+                                if (!$checkbox.attr('id')) {
+                                    // Nếu checkbox chưa có id, thêm id="selectAll"
+                                    $checkbox.attr('id', 'selectAll');
+                                }
+
+                                // Xóa thuộc tính readonly
+                                $checkbox.removeAttr('readonly');
+
+                                //console.log('ID added and readonly removed.');
+                            } else {
+                                //console.log('No checkbox found.');
+                            }
+
+
                         },
-                    
+                        type:"checkbox",                                          
                         align: "center",
                         width: 50,
-                    },
-                    {
-                        name: "All",
-                        title: "<input type='checkbox' id='selectAll'>", // Checkbox "All"
-                        width: 30,
-                        align: "center",
-                        itemTemplate: function(value, item) {
-                            return $("<input>")
-                                .attr("type", "checkbox")
-                                .addClass("row-checkbox")
-                                .on("change", function() {
-                                    // Logic để xử lý thay đổi checkbox cho hàng
-                                    console.log("Checkbox changed for item", item);
-                                });
-                        }
-                    },
+                        sorting: false 
+                    },        
                     { name: "name", type: "text", title:"Name" , width: 150, validate: "required", filtering: true  },
                     { 
                         name: "age", type: "number", width: 50, filtering: true,
