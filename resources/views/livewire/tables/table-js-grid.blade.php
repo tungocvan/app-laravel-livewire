@@ -59,7 +59,7 @@
             var selectItem = function(item) {
                
                 selectedItems.push(item);
-                console.log('selectItem:',selectedItems);
+                //console.log('selectItem:',selectedItems);
             };
 
         
@@ -68,7 +68,7 @@
                 selectedItems = $.grep(selectedItems, function(i) {
                     return i !== item;
                 });
-                console.log('unselectItem:',selectedItems);
+                //console.log('unselectItem:',selectedItems);
             };
 
             var deleteSelectedItems = function() {
@@ -92,7 +92,7 @@
             function openEditModal(item) {
                 // Điền dữ liệu vào modal
                 //hanlderShow()
-               console.log(this.show);
+               //console.log(this.show);
             }
                 
         
@@ -106,9 +106,17 @@
                 if(checked){
                     $(".row-checkbox").each(function() {
                     // Lấy id từ data-id
-                        var id = $(this).data('id'); // Sử dụng data-id để lấy ID
+                        let id = $(this).data('id'); // Sử dụng data-id để lấy ID
                         if (id) {
                             selectItem(id); // Thêm id vào mảng
+                        }
+                    });
+                }else{
+                    $(".row-checkbox").each(function() {
+                    // Lấy id từ data-id
+                        let id = $(this).data('id'); // Sử dụng data-id để lấy ID
+                        if (id) {
+                            unselectItem(id); // Thêm id vào mảng
                         }
                     });
                 }
@@ -208,16 +216,16 @@
                 controller: {
                     loadData: function(filter) {
                         // Lọc dữ liệu theo các tiêu chí tìm kiếm
-                        console.log('loadData');
+                        console.log('loadData:',filter);
                         filteredData =null
-                        if(filter.name !=="" || filter.age!==undefined || filter.address !=="" || filter.country_id !==0 ){
+                        if(filter.name !=="" || filter.age!==undefined || filter.address !=="" || filter.country_id !==0 || filter.married!==undefined ){
                             //console.log(@json($db));
                             console.log('filteredData');
                                 filteredData = @json($db).filter(item => {
-                                return (!filter.name || item.name.includes(filter.name)) && (!filter.age || item.age === filter.age) && (!filter.address || item.address.includes(filter.address)) && (!filter.country_id || item.country_id === filter.country_id)
+                                return (!filter.name || item.name.includes(filter.name)) && (!filter.age || item.age === filter.age) && (!filter.address || item.address.includes(filter.address)) && (!filter.country_id || item.country_id === filter.country_id) && (!filter.married || item.married === filter.married)
                             });
                         }
-
+                      
                         return filteredData ?? @json($db);
                         
                     },
@@ -250,7 +258,7 @@
                         },
                         filterValue: function() {                             
                                 // Chọn phần tử checkbox đã cho
-                            var $checkbox = $('input[type="checkbox"][readonly]'); // Chọn checkbox có thuộc tính readonly
+                            var $checkbox = $('input[type="checkbox"]').first(); // Chọn checkbox có thuộc tính readonly
 
                             // Kiểm tra xem phần tử đã có id chưa
                             if ($checkbox.length > 0) {
@@ -288,7 +296,7 @@
                     },
                     { name: "address", type: "text", width: 200 ,  filtering: true},
                     { name: "country_id", type: "select", title:"Country" , items: @json($country), valueField: "id", textField: "name" , filtering: true},
-                    { name: "married", type: "checkbox", title: "Is Married", sorting: false },          
+                    { name: "married", type: "checkbox", title: "Is Married", sorting: true,  filtering: true },          
                     {
                         type: "control",     
                         modeSwitchButton: true,                           
