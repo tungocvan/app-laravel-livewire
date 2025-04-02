@@ -4,10 +4,10 @@
         <div class="col-sm-12 col-md-12 d-flex">               
             <div class="form-group mr-2" style="width:150px">                    
                 <select x-model="perPage" class="perPage form-control custom-select" >                      
-                  <option value="5">Show 05 rows</option>
                   <option value="10">Show 10 rows</option>
-                  <option value="50">Show 50 rows</option>
-                  <option value="100">Show 100 rows</option>                      
+                  <option value="15">Show 15 rows</option>
+                  <option value="20">Show 20 rows</option>
+                  <option value="50">Show 50 rows</option>                      
                 </select>
             </div>
             <div>
@@ -60,16 +60,31 @@
         init(){                                            
         },
         exportToExcel(){
-            console.log('oki');
-            this.gridData =  $("#jsGrid").jsGrid("option", "excelData");            
-            console.log('excelData:',this.gridData);           
-            // Chuyển đổi dữ liệu thành định dạng phù hợp với SheetJS
-            // let worksheet = XLSX.utils.json_to_sheet(this.gridData);
-            // let workbook = XLSX.utils.book_new();
-            // XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+          
+            var selectedIds = []; // Mảng lưu các id đã chọn
+            // Duyệt qua tất cả checkbox mà được chọn
+            $(".row-checkbox:checked").each(function() {
+                var id = $(this).data('id'); // Lấy data-id
+                if (id) {
+                    selectedIds.push(id); // Lưu id vào mảng
+                }
+            });       
+            // Nếu không có id nào được chọn thì không xuất
+            if (selectedIds.length === 0) {
+                alert("No items selected.");
+                return;
+            }
+            // Lấy dữ liệu tương ứng với các ID đã chọn
+            var gridData = $("#jsGrid").jsGrid("option", "data");
+            var selectedData = gridData.filter(item => selectedIds.includes(item.id));
 
-            // // Xuất file Excel
-            // XLSX.writeFile(workbook, 'jsGridData.xlsx');
+            // Chuyển đổi dữ liệu thành định dạng phù hợp với SheetJS
+            let worksheet = XLSX.utils.json_to_sheet(selectedData);
+            let workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+
+            // Xuất file Excel
+            XLSX.writeFile(workbook, 'jsGridData.xlsx');
 
         }
         
@@ -170,7 +185,6 @@
             $("#jsGrid").jsGrid({
                 width: "100%",
                 height: "100%",
-                
                 readOnly: false,
                 filtering: true,               
                 inserting: true,
@@ -179,7 +193,8 @@
                 confirmDeleting: true,
                 paging: true,
                 autoload: true,        
-                pageSize: 10,
+                pageSize: 5,
+                pagerFormat: "Pages: {first} {prev} {pages} {next} {last} Showing  {pageIndex} to {pageCount} of {itemCount}",
                 pageButtonCount: 5,
                 excelData:[],
                 
@@ -204,7 +219,7 @@
                 onDataLoading: function(args) {                  
                    // console.log('onDataLoading');            
                    
-                   this.pageSize = perPage
+                  // this.pageSize = perPage
                 
                 },
         
