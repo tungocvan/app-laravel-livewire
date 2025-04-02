@@ -1,10 +1,26 @@
 <div x-data="tablesData">
 
-    <div class="row">      
-      <div class="col-md-12 mb-2">
+    <div class="row">  
+        <div class="col-sm-12 col-md-12 d-flex">               
+            <div class="form-group mr-2" style="width:150px">                    
+                <select x-model="perPage" class="perPage form-control custom-select" >                      
+                  <option value="5">Show 05 rows</option>
+                  <option value="10">Show 10 rows</option>
+                  <option value="50">Show 50 rows</option>
+                  <option value="100">Show 100 rows</option>                      
+                </select>
+            </div>
+            <div>
+                <button  class="btn buttons-print btn-default" title="Print"><span><i class="fas fa-fw fa-lg fa-print"></i></span></button>         
+                <button  x-on:click="exportToExcel"  class="btn buttons-excel buttons-html5 btn-default" title="Export to Excel" ><span><i class="fas fa-fw fa-lg fa-file-excel text-success"></i></span></button> 
+                <button  class="btn buttons-pdf buttons-html5 btn-default" title="Export to PDF"><span><i class="fas fa-fw fa-lg fa-file-pdf text-danger"></i></span></button> 
+                <button @click="$store.modal.toggle()" class="btn  buttons-html5 btn-default" title="Add" ><span><i class="fas fa-fw fa-lg fa-plus-square text-primary"></i></span></button> 
+            </div>               
+        </div>    
+      {{-- <div class="col-md-9 mb-2">
             <buttonx-data @click="$store.modal.toggle()" class="btn btn-primary">Add</button>
             
-      </div>
+      </div> --}}
       <div class="col-md-12"><div id="jsGrid"></div></div>
     </div>
     <div class="modal fade show" x-data :class="$store.modal.show && 'd-block'" id="myModal">
@@ -38,9 +54,25 @@
    
    @script
    <script>
-    Alpine.data("tablesData", () => ({              
+    Alpine.data("tablesData", () => ({            
+        perPage:5,  
+        gridData:[],
         init(){                                            
+        },
+        exportToExcel(){
+            console.log('oki');
+            this.gridData =  $("#jsGrid").jsGrid("option", "excelData");            
+            console.log('excelData:',this.gridData);           
+            // Chuyển đổi dữ liệu thành định dạng phù hợp với SheetJS
+            // let worksheet = XLSX.utils.json_to_sheet(this.gridData);
+            // let workbook = XLSX.utils.book_new();
+            // XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+
+            // // Xuất file Excel
+            // XLSX.writeFile(workbook, 'jsGridData.xlsx');
+
         }
+        
     }))  
     
     Alpine.store('modal', {
@@ -56,13 +88,16 @@
             var selectedItems = [];
             var filter = false; 
             var idCountry = 1;
+            var perPage = 5;
             var selectItem = function(item) {
                
                 selectedItems.push(item);
                 //console.log('selectItem:',selectedItems);
+                // var $grid = $("#jsGrid");
+                // $grid.jsGrid("option", "excelData", selectedItems);
             };
 
-        
+           
 
             var unselectItem = function(item) {
                 selectedItems = $.grep(selectedItems, function(i) {
@@ -94,10 +129,18 @@
                 //hanlderShow()
                //console.log(this.show);
             }
-                
+          
+
+            $('.perPage').change(function(){                 
+                 perPage = this._x_model.get('perPage')
+                 //console.log(perPage);
+                 var $grid = $("#jsGrid");
+                 $grid.jsGrid("option", "pageSize", perPage);
+                 $grid.jsGrid("loadData");
+             });
         
             $('#jsGrid').on('change', '#selectAll', function() {
-                console.log('selectAll');
+                //console.log('selectAll');
                 var checked = $(this).is(':checked');
                 $(".row-checkbox").prop('checked', checked);            
             
@@ -138,7 +181,7 @@
                 autoload: true,        
                 pageSize: 10,
                 pageButtonCount: 5,
-                
+                excelData:[],
                 
             
                 deleteConfirm: function(item) {
@@ -159,7 +202,10 @@
                     
                 },
                 onDataLoading: function(args) {                  
-                    console.log('onDataLoading');            
+                   // console.log('onDataLoading');            
+                   
+                   this.pageSize = perPage
+                
                 },
         
                 onItemInserted: function(args) {
@@ -216,16 +262,25 @@
                 controller: {
                     loadData: function(filter) {
                         // Lọc dữ liệu theo các tiêu chí tìm kiếm
-                        console.log('loadData:',filter);
+                        //console.log('loadData:',filter);
+                        //console.log('excelData:',this.excelData);
+                        
                         filteredData =null
-                        if(filter.name !=="" || filter.age!==undefined || filter.address !=="" || filter.country_id !==0 || filter.married!==undefined ){
+                        if(filter.name !=="" || filter.age!==undefined || filter.address !=="" || filter.country_id !==0 ){
                             //console.log(@json($db));
-                            console.log('filteredData');
+                           // console.log('filteredData');
                                 filteredData = @json($db).filter(item => {
-                                return (!filter.name || item.name.includes(filter.name)) && (!filter.age || item.age === filter.age) && (!filter.address || item.address.includes(filter.address)) && (!filter.country_id || item.country_id === filter.country_id) && (!filter.married || item.married === filter.married)
+                                return (!filter.name || item.name.includes(filter.name)) && (!filter.age || item.age === filter.age) && (!filter.address || item.address.includes(filter.address)) && (!filter.country_id || item.country_id === filter.country_id)
                             });
                         }
                       
+                        // && ( item.married === filter.married)
+                        if(filter.married!==undefined ){
+                            filteredData = @json($db).filter(item => {
+                                return (item.married === filter.married) && (!filter.name || item.name.includes(filter.name)) && (!filter.age || item.age === filter.age) && (!filter.address || item.address.includes(filter.address)) && (!filter.country_id || item.country_id === filter.country_id)
+                            })                             
+                        }
+
                         return filteredData ?? @json($db);
                         
                     },
@@ -243,8 +298,8 @@
 
                 fields: [
                     {
-                        headerTemplate: function() {
-                            return $("<button>").attr("type", "button").text("Delete")
+                        headerTemplate: function() { 
+                            return $("<input>").attr("type", "button").attr("class", "jsgrid-button jsgrid-delete-button")
                                     .on("click", function () {
                                         deleteSelectedItems();
                                     });
@@ -306,6 +361,7 @@
                             // Tạo nút Detail
                            //var controlButton = $(".jsgrid-control-field")
                            // console.log(controlButton);
+                           let {id,name,age} = item 
                             var editButton  = $("<input>")
                                 .attr("class", "jsgrid-button jsgrid-edit-button")
                                 .attr("type", "button")
@@ -313,7 +369,7 @@
                                 .on("click", function() {
                                     //editItem(item);
                                     //$("#jsGrid").jsGrid("editItem", item);
-                                    let {name,age} = item                                      
+                                                                         
                                     let content = `<h5>${name} - ${age}</h5>`
                                     $('#myModal .modal-body').html(content)
                                     $store.modal.show = true
@@ -323,7 +379,7 @@
                                 .attr("type", "button")
                                 .attr("title", "delete")                                
                                 .on("click", function() {
-                                    @this.deleteData(item.id);
+                                    @this.deleteData(id);
                                 });
                             var detailButton = $("<input>")
                                 .attr("class", "jsgrid-button jsgrid-detail-button")
@@ -332,7 +388,7 @@
                                 .on("click", function() {
                                     // Logic hiển thị chi tiết ở đây
                                      //showDetail(item);
-                                     console.log('Detail');
+                                     console.log('Detail:',id);
                                 });
                             
                             // Trả về nút Edit và Detail

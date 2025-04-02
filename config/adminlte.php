@@ -604,6 +604,16 @@ return [
                 ],
             ],
         ],
+        'xlsx' => [
+            'active' => false,
+            'files' => [
+                [
+                    'type' => 'js',
+                    'asset' => true,
+                    'location' => '//cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.5/xlsx.full.min.js',
+                ],
+            ],
+        ],
         'jsGrid' => [
             'active' => false,
             'files' => [

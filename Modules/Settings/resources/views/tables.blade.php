@@ -1,5 +1,6 @@
 @extends('adminlte::page')
 {{-- @section('plugins.Select2', true) --}}
+@section('plugins.xlsx', true)
 @section('plugins.jsGrid', true)
 {{-- @section('plugins.Summernote', true) --}}
 {{-- @section('plugins.TempusDominusBs4', true) --}} 
