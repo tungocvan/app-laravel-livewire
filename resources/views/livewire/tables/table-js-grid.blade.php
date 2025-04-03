@@ -15,9 +15,10 @@
                 <button  x-on:click="exportToExcel"  class="btn buttons-excel buttons-html5 btn-default" title="Export to Excel" ><span><i class="fas fa-fw fa-lg fa-file-excel text-success"></i></span></button> 
                 <button  class="btn buttons-pdf buttons-html5 btn-default" title="Export to PDF"><span><i class="fas fa-fw fa-lg fa-file-pdf text-danger"></i></span></button> 
                 <button @click="$store.modal.toggle()" class="btn  buttons-html5 btn-default" title="Add" ><span><i class="fas fa-fw fa-lg fa-plus-square text-primary"></i></span></button> 
+                <button class="btn  buttons-html5 btn-default" title="Import File" ><span><i class="fas fa-fw fa-lg fa-file-import text-success"></i></span></button> 
             </div>               
         </div>    
-      {{-- <div class="col-md-9 mb-2">
+      {{-- <div class="col-md-9 mb-2"> <i class="fas fa-paperclip"></i>
             <buttonx-data @click="$store.modal.toggle()" class="btn btn-primary">Add</button>
             
       </div> --}}
