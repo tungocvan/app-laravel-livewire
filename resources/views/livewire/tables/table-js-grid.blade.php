@@ -13,9 +13,12 @@
             <div>
                 <button  class="btn buttons-print btn-default" title="Print"><span><i class="fas fa-fw fa-lg fa-print"></i></span></button>         
                 <button  x-on:click="exportToExcel"  class="btn buttons-excel buttons-html5 btn-default" title="Export to Excel" ><span><i class="fas fa-fw fa-lg fa-file-excel text-success"></i></span></button> 
-                <button  class="btn buttons-pdf buttons-html5 btn-default" title="Export to PDF"><span><i class="fas fa-fw fa-lg fa-file-pdf text-danger"></i></span></button> 
+                <button @click="exportDoc" class="btn  buttons-doc btn-default" title="Export File Doc" ><span><i class="fas fa-fw fa-lg fa-file-word text-primary"></i></span></button> 
+                <button  @click="exportPdf" class="btn buttons-pdf buttons-html5 btn-default" title="Export to PDF"><span><i class="fas fa-fw fa-lg fa-file-pdf text-danger"></i></span></button> 
                 <button @click="$store.modal.toggle()" class="btn  buttons-html5 btn-default" title="Add" ><span><i class="fas fa-fw fa-lg fa-plus-square text-primary"></i></span></button> 
-                <button class="btn  buttons-html5 btn-default" title="Import File" ><span><i class="fas fa-fw fa-lg fa-file-import text-success"></i></span></button> 
+                <button @click="importExcel" class="btn  buttons-html5 btn-default" title="Import File Excel" ><span><i class="fas fa-fw fa-lg fa-file-import text-success"></i></span></button> 
+                
+                <input type="file" id="impFile" hidden>
             </div>               
         </div>    
       {{-- <div class="col-md-9 mb-2"> <i class="fas fa-paperclip"></i>
@@ -58,10 +61,10 @@
     Alpine.data("tablesData", () => ({            
         perPage:5,  
         gridData:[],
+        
         init(){                                            
         },
-        exportToExcel(){
-          
+        readData(){
             var selectedIds = []; // Mảng lưu các id đã chọn
             // Duyệt qua tất cả checkbox mà được chọn
             $(".row-checkbox:checked").each(function() {
@@ -75,10 +78,19 @@
                 alert("No items selected.");
                 return;
             }
-            // Lấy dữ liệu tương ứng với các ID đã chọn
-            var gridData = $("#jsGrid").jsGrid("option", "data");
-            var selectedData = gridData.filter(item => selectedIds.includes(item.id));
+             // Lấy dữ liệu tương ứng với các ID đã chọn
+            let gridData = $("#jsGrid").jsGrid("option", "data");
+            return gridData.filter(item => selectedIds.includes(item.id));
+           
 
+        },
+        exportToExcel(){
+          
+            
+            // Lấy dữ liệu tương ứng với các ID đã chọn
+            // var gridData = $("#jsGrid").jsGrid("option", "data");
+            // var selectedData = gridData.filter(item => selectedIds.includes(item.id));
+            let selectedData = this.readData()
             // Chuyển đổi dữ liệu thành định dạng phù hợp với SheetJS
             let worksheet = XLSX.utils.json_to_sheet(selectedData);
             let workbook = XLSX.utils.book_new();
@@ -87,8 +99,97 @@
             // Xuất file Excel
             XLSX.writeFile(workbook, 'jsGridData.xlsx');
 
-        }
+        },
+        importExcel(){
+            const inputFile = document.getElementById('impFile');
+            inputFile.click();
+            inputFile.onchange = (event) => {
+                const file = event.target.files[0];
+                if (!file) {
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+
+                    // Assuming the data is in the first sheet
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                    
+                    // Now you have the data in jsonData, call your Livewire method
+                    //this.$wire.call('importExcel', jsonData);
+                    console.log(jsonData);
+                };
+                reader.readAsArrayBuffer(file);
+                inputFile.value = ''; // Reset the input
+            }
+        },
+        exportPdf() {
+            
+           
+            let selectedData = this.readData()
+            // Truy cập vào jsPDF từ window object
+            const { jsPDF } = window.jspdf;
+
+            // Tạo một instance của jsPDF
+            const doc = new jsPDF();
+            console.log(selectedData);
+            // Thêm nội dung vào tệp PDF (bạn có thể tùy chỉnh nội dung)
+            doc.text("Hello, this is your PDF document!", 10, 10);
+            doc.text("You can add more content here...", 10, 20);
+            
+            // Xuất tệp PDF
+            doc.save("generated.pdf");
+        },
         
+        async exportDoc() {
+                    // Truy cập các thành phần từ thư viện docx
+                    const { Document, Packer, Paragraph, TextRun } = docx;
+
+                    // Tạo một document mới
+                    const doc = new Document({
+                        sections: [{ // Định nghĩa các sections cho tài liệu
+                            properties: {},
+                            children: [
+                                new Paragraph({
+                                    children: [
+                                        new TextRun("Hello, this is your DOC document!"),
+                                        new TextRun({
+                                            text: " This is a new line.",
+                                            break: 1, // Thêm một dòng mới
+                                        }),
+                                        new TextRun({
+                                            text: "You can add more content here...",
+                                            bold: true, // In đậm
+                                        }),
+                                    ],
+                                }),
+                            ],
+                        }],
+                    });
+
+                    try {
+                        // Xuất tệp DOC
+                        const blob = await Packer.toBlob(doc);
+                        this.downloadFile(blob, "generated.docx"); // Tải xuống tệp
+                    } catch (error) {
+                        console.error("Error while creating the document:", error);
+                    }
+        },
+
+        downloadFile(blob, fileName) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url); // Giải phóng URL
+        }
+
     }))  
     
     Alpine.store('modal', {

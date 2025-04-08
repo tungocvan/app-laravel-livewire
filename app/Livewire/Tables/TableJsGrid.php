@@ -70,6 +70,18 @@ class TableJsGrid extends Component
         //dd($this->db);
         return $this->db;
     }
+
+
+    public function importExcel($data)
+    {
+        // Process the imported data
+        dd($data);
+        foreach ($data as $row) {
+            // $row is an array representing a single row from the Excel sheet
+        }
+        // You might want to store it in a database or perform other actions
+    }
+
     public function render()
     {
         return view('livewire.tables.table-js-grid');

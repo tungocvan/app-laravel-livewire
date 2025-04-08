@@ -612,6 +612,16 @@ return [
                     'asset' => true,
                     'location' => '//cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.5/xlsx.full.min.js',
                 ],
+                [
+                    'type' => 'js',
+                    'asset' => true,
+                    'location' => '//cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js',
+                ],
+                [
+                    'type' => 'js',
+                    'asset' => true,
+                    'location' => '//unpkg.com/docx@7.3.0/build/index.js',
+                ],
             ],
         ],
         'jsGrid' => [
