@@ -10,6 +10,7 @@ class TableJsGrid extends Component
 {
     public $db;
     public $country;
+    public $search = '';
 
     public function mount()
     {
@@ -41,7 +42,8 @@ class TableJsGrid extends Component
     }
     public function loadData($filter = null)
     {
-      // dd($filter);
+        dd($this->search);
+        // dd($filter);
        // $query = Client::query();
        // $this->db = $query->get();
       // $this->db = Client::all();
@@ -68,6 +70,15 @@ class TableJsGrid extends Component
 // //            dd($this->db);
 //         }
         //dd($this->db);
+
+        // $query = Client::query();
+        // if($this->search!=='') {
+        //     $query->where('name', 'like', '%' . $this->search . '%');
+        //     $this->db = $query->get();
+        // }else{
+        //     $this->db = Client::all(); 
+        // }
+
         return $this->db;
     }
 

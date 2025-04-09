@@ -16,10 +16,17 @@
                 <button @click="exportDoc" class="btn  buttons-doc btn-default" title="Export File Doc" ><span><i class="fas fa-fw fa-lg fa-file-word text-primary"></i></span></button> 
                 <button  @click="exportPdf" class="btn buttons-pdf buttons-html5 btn-default" title="Export to PDF"><span><i class="fas fa-fw fa-lg fa-file-pdf text-danger"></i></span></button> 
                 <button @click="$store.modal.toggle()" class="btn  buttons-html5 btn-default" title="Add" ><span><i class="fas fa-fw fa-lg fa-plus-square text-primary"></i></span></button> 
-                <button @click="importExcel" class="btn  buttons-html5 btn-default" title="Import File Excel" ><span><i class="fas fa-fw fa-lg fa-file-import text-success"></i></span></button> 
-                
+                <button @click="importExcel" class="btn  buttons-html5 btn-default" title="Import File Excel" ><span><i class="fas fa-fw fa-lg fa-file-import text-success"></i></span></button>                 
                 <input type="file" id="impFile" hidden>
-            </div>               
+            </div>    
+            <div class="input-group input-group-md float-right mx-2" style="width:300px">
+                <input type="text" x-model="search" @input.debounce.500ms="fetchSearch" class="form-control" placeholder="Search" fdprocessedid="xdmrgc">
+                <div class="input-group-append" style="height:38px">
+                  <button type="submit" class="btn btn-default btn-md">
+                    <i class="fas fa-search"></i>
+                  </button>
+                </div>
+              </div>           
         </div>    
       {{-- <div class="col-md-9 mb-2"> <i class="fas fa-paperclip"></i>
             <buttonx-data @click="$store.modal.toggle()" class="btn btn-primary">Add</button>
@@ -61,8 +68,14 @@
     Alpine.data("tablesData", () => ({            
         perPage:5,  
         gridData:[],
-        
+        search:'',
         init(){                                            
+        },
+        fetchSearch(){
+            //alert(this.search)
+            var $grid = $("#jsGrid");
+           // $grid.jsGrid("option", "search", this.search);
+            $grid.jsGrid("loadData",this.search);
         },
         readData(){
             var selectedIds = []; // Mảng lưu các id đã chọn
@@ -299,7 +312,7 @@
                 pagerFormat: "Pages: {first} {prev} {pages} {next} {last} Showing  {pageIndex} to {pageCount} of {itemCount}",
                 pageButtonCount: 5,
                 excelData:[],
-                
+                search:'',
             
                 deleteConfirm: function(item) {
                     return "The client \"" + item.name + "\" will be removed. Are you sure?";
@@ -322,6 +335,7 @@
                    // console.log('onDataLoading');            
                    
                   // this.pageSize = perPage
+                  // console.log('search:',this.search);
                 
                 },
         
@@ -379,7 +393,15 @@
                 controller: {
                     loadData: function(filter) {
                         // Lọc dữ liệu theo các tiêu chí tìm kiếm
-                        //console.log('loadData:',filter);
+                       
+                        if((typeof filter) === "string" && filter!=='') {
+                           return  filteredData = @json($db).filter(item => {
+                                return (item.name.includes(filter))
+                            });
+
+                        }
+
+                        console.log('loadData:',filter);
                         //console.log('excelData:',this.excelData);
                         
                         filteredData =null
