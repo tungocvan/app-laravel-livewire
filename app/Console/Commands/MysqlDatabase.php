@@ -93,11 +93,23 @@ class MysqlDatabase extends Command
             $this->error('Query is required.');
             return;
         }
-
+        
         try {
+            print_r($query); 
             $results = DB::select($query);
             $this->info("Query executed successfully.");
-            print_r($results);
+
+            if($query === "show tables;" || $query === "SHOW TABLES;"){
+                $databaseName = DB::getDatabaseName();            
+                $this->info("Query executed successfully.");
+                foreach ($results as $result) {
+                    $tableNameColumn = "Tables_in_$databaseName";
+                    echo $result->$tableNameColumn . "\n";;
+                }
+            }else{
+                print_r($results); 
+            }
+           // print_r($results);    
         } catch (\Exception $e) {
             $this->error('Error executing query: ' . $e->getMessage());
         }
