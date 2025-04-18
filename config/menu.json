@@ -1,9 +1,18 @@
 [
     {
+        "header": "MANAGER  WEBSITES"
+    },
+    {
+        "text": "Manage Products",
+        "url": "admin\/products",
+        "icon": "fas fa-fw fa-user",
+        "can": "admin-create"
+    },
+    {
         "header": "ACCOUNT SETTINGS "
     },
     {
-        "text": "Manage Users ",
+        "text": "Manage Users  ",
         "url": "admin\/users",
         "icon": "fas fa-fw fa-user",
         "can": "admin-create"
