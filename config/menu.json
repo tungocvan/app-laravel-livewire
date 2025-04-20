@@ -9,6 +9,18 @@
         "can": "admin-create"
     },
     {
+        "text": "Add new product",
+        "url": "admin\/products\/add-product",
+        "icon": "fas fa-fw fa-user",
+        "can": "admin-create"
+    },
+    {
+        "text": "Products Categories ",
+        "url": "admin\/products\/categories",
+        "icon": "fas fa-fw fa-user",
+        "can": "admin-create"
+    },
+    {
         "header": "ACCOUNT SETTINGS "
     },
     {

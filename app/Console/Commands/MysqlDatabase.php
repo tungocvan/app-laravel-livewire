@@ -31,12 +31,32 @@ class MysqlDatabase extends Command
             case 'query':
                 $this->runQuery($name);
                 break;
-
+            case 'import':
+                $this->importFileMySQL($name);
+                break;
+            case 'backup':
+                $this->backupDatabase($name);
+                break;
+            case 'restore':
+                $this->restoreDatabase($name);
+                break;
+           
             default:
-                $this->error('Invalid action. Available actions: create, delete, show, query.');
+                $this->helps();
+                break;
         }
     }
 
+    protected function helps()
+    {
+        $this->info("php artisan db:mysql create ten-database");
+        $this->info("php artisan db:mysql delete ten-database");
+        $this->info("php artisan db:mysql backupDatabase ten-database");
+        $this->info("php artisan db:mysql restoreDatabase ten-database");
+        $this->info("php artisan db:mysql importFileMySQL ten-file.sql");
+        $this->info("php artisan db:mysql runQuery cau-lenh-mysql");
+        $this->info("php artisan db:mysql show");
+    }
     protected function createDatabase($name)
     {
         if (empty($name)) {
@@ -113,5 +133,75 @@ class MysqlDatabase extends Command
         } catch (\Exception $e) {
             $this->error('Error executing query: ' . $e->getMessage());
         }
+    }
+
+  
+    protected function importFileMySQL($fileName) {
+        // Đọc nội dung của file SQL
+        $sql = file_get_contents($fileName);
+        //dd($sql);
+        // Kiểm tra nếu việc đọc file thành công
+        if ($sql === false) {
+            throw new \Exception("Không thể đọc file: " . $fileName);
+        }
+
+        // Chia nhỏ các câu lệnh SQL bằng dấu ';'
+        $queries = explode(';', $sql);
+
+        // Thực thi từng câu lệnh SQL
+        foreach ($queries as $query) {
+            $query = trim($query);
+            if (!empty($query)) {
+                DB::statement($query);
+            }
+        }
+
+        return true; // Hoàn thành import
+    }
+
+    protected function backupDatabase($filePath) {
+        // Lấy thông tin cấu hình database
+        $dbConfig = config('database.connections.mysql');
+        
+        $host = $dbConfig['host'];
+        $database = $dbConfig['database'];
+        $username = $dbConfig['username'];
+        $password = $dbConfig['password'];
+        
+        // Tạo lệnh mysqldump
+        $command = "mysqldump --user={$username} --password={$password} --host={$host} {$database} > {$filePath}";
+    
+        // Thực thi lệnh
+        system($command, $returnVar);
+    
+        // Kiểm tra kết quả
+        if ($returnVar !== 0) {
+            throw new \Exception("Backup database failed.");
+        }
+    
+        return true; // Hoàn thành backup
+    }
+
+    protected function restoreDatabase($filePath) {
+        // Lấy thông tin cấu hình database
+        $dbConfig = config('database.connections.mysql');
+        
+        $host = $dbConfig['host'];
+        $database = $dbConfig['database'];
+        $username = $dbConfig['username'];
+        $password = $dbConfig['password'];
+        
+        // Tạo lệnh mysql để khôi phục cơ sở dữ liệu
+        $command = "mysql --user={$username} --password={$password} --host={$host} {$database} < {$filePath}";
+    
+        // Thực thi lệnh
+        system($command, $returnVar);
+    
+        // Kiểm tra kết quả
+        if ($returnVar !== 0) {
+            throw new \Exception("Restore database failed.");
+        }
+    
+        return true; // Hoàn thành khôi phục
     }
 }

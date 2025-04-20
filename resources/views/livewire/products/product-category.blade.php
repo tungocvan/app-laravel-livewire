@@ -2,7 +2,7 @@
     <h2 class="mb-4">Manage Product Categories</h2>
     
     <button class="btn btn-primary mb-4" wire:click="showCreateForm">
-        <i class="fas fa-plus me-2"></i>Create New Category
+        <i class="fas fa-plus me-2 mx-1"></i>Create New Category
     </button>
 
     @if($showForm)
@@ -37,7 +37,7 @@
                     <button type="submit" class="btn btn-success">
                         <i class="fas fa-save me-2"></i>{{ $editingId ? 'Update' : 'Save' }}
                     </button>
-                    <button type="button" class="btn btn-outline-secondary" wire:click="showCreateForm">
+                    <button type="button" class="btn btn-outline-secondary mx-2" wire:click="showCreateForm">
                         <i class="fas fa-times me-2"></i>Cancel
                     </button>
                 </div>

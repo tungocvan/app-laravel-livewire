@@ -20,6 +20,14 @@ class ProductsController extends Controller
     {
         return view('Products::products');
     }
+    public function addProduct()
+    {
+        return view('Products::add');
+    }
+    public function categories()
+    {
+        return view('Products::categories');
+    }
 
     /**
      * Show the form for creating a new resource.
