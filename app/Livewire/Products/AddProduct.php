@@ -3,9 +3,15 @@
 namespace App\Livewire\Products;
 
 use Livewire\Component;
-use Illuminate\Support\Facades\DB;
+use App\Models\WpPost;
+use App\Models\WpPostMeta;
+use App\Models\WpTerm;
+use App\Models\WpTermTaxonomy;
+use App\Models\WpTermRelationship; 
 use Livewire\WithFileUploads;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class AddProduct extends Component
 {
@@ -38,91 +44,75 @@ class AddProduct extends Component
 
     public function render()
     {
+        $allCategories = DB::table('wp_terms')
+            ->join('wp_term_taxonomy', 'wp_terms.term_id', '=', 'wp_term_taxonomy.term_id')
+            ->where('wp_term_taxonomy.taxonomy', 'product_cat')
+            ->select('wp_terms.term_id', 'wp_terms.name')
+            ->get();
+
         return view('livewire.products.add-product', [
-            'allCategories' => $this->getCategories(),
+            'allCategories' => $allCategories,
         ]);
     }
 
     public function submit()
     {
-        $this->validate();
+        $this->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'shortDescription' => 'required|string|max:1000',
+            'categories' => 'required|numeric',
+            'regularPrice' => 'required|numeric',
+            'image' => 'required|image|max:2048', // 2MB
+            'gallery.*' => 'nullable|image|max:2048',
+        ]);
 
-        DB::transaction(function () {
-            // Save product to wp_posts
-            $productId = DB::table('wp_posts')->insertGetId([
-                'post_author' => auth()->id() ?? 1,
-                'post_title' => $this->name,
-                'post_content' => $this->description,
-                'post_excerpt' => $this->shortDescription,
-                'post_status' => 'publish',
-                'post_type' => 'product',
-                'comment_status' => 'closed',
-                'ping_status' => 'closed',
-                'post_name' => Str::slug($this->name),
-                'post_date' => now(),
-                'post_date_gmt' => now(),
-                'post_modified' => now(),
-                'post_modified_gmt' => now(),
-            ]);
+        // Upload main image
+        $imagePath = $this->image->store('products', 'public');
 
-            // Save product image
-            if ($this->image) {
-                $imagePath = $this->image->store('products', 'public');
-                
-                // Insert to wp_posts as attachment
-                $attachmentId = DB::table('wp_posts')->insertGetId([
-                    'post_author' => auth()->id() ?? 1,
-                    'post_title' => $this->name . ' Image',
-                    'post_status' => 'inherit',
-                    'post_type' => 'attachment',
-                    'guid' => asset('storage/' . $imagePath),
-                    'post_mime_type' => $this->image->getMimeType(),
-                    'post_name' => 'product-' . $productId . '-image',
-                    'post_date' => now(),
-                    'post_date_gmt' => now(),
-                ]);
+        // Insert to wp_posts
+        $postId = DB::table('wp_posts')->insertGetId([
+            'post_author'      => 1,
+            'post_date'        => Carbon::now(),
+            'post_date_gmt'    => Carbon::now('UTC'),
+            'post_content'     => $this->description ?? '',
+            'post_title'       => $this->name,
+            'post_excerpt'     => $this->shortDescription,
+            'post_status'      => 'publish',
+            'comment_status'   => 'open',
+            'ping_status'      => 'open',
+            'to_ping' => '',  // Thêm giá trị mặc định
+            'pinged' => '',   // Thêm giá trị mặc định
+            'post_content_filtered' => '', // Thêm giá trị mặc định
+            'post_name'        => Str::slug($this->name),
+            'post_modified'    => Carbon::now(),
+            'post_modified_gmt' => Carbon::now('UTC'),
+            'guid'             => url('storage/' . $imagePath),
+            'post_type'        => 'product',
+        ]);
 
-                // Save as thumbnail
-                DB::table('wp_postmeta')->insert([
-                    'post_id' => $productId,
-                    'meta_key' => '_thumbnail_id',
-                    'meta_value' => $attachmentId,
-                ]);
+        // Insert meta data (price, sale price, image)
+        DB::table('wp_postmeta')->insert([
+            ['post_id' => $postId, 'meta_key' => '_regular_price', 'meta_value' => $this->regularPrice],
+            ['post_id' => $postId, 'meta_key' => '_price', 'meta_value' => $this->salePrice ?? $this->regularPrice],
+            ['post_id' => $postId, 'meta_key' => '_thumbnail_id', 'meta_value' => $imagePath],
+        ]);
+
+        // (Optional) Upload gallery images
+        if (!empty($this->gallery)) {
+            foreach ($this->gallery as $file) {
+                $file->store('products/gallery', 'public');
+                // Nếu cần lưu thêm gallery path hoặc gắn vào postmeta, xử lý ở đây
             }
+        }
 
-            // Save product meta data
-            $meta_data = [
-                '_regular_price' => $this->regularPrice,
-                '_price' => $this->salePrice ?: $this->regularPrice,
-                '_sale_price' => $this->salePrice,
-                '_stock_status' => 'instock',
-                '_manage_stock' => 'no',
-                '_tax_status' => 'taxable',
-                '_tax_class' => '',
-                '_visibility' => 'visible',
-                '_sku' => 'SKU-' . $productId,
-                '_product_image_gallery' => $this->processGalleryImages($productId),
-            ];
-
-            foreach ($meta_data as $key => $value) {
-                if ($value !== null) {
-                    DB::table('wp_postmeta')->insert([
-                        'post_id' => $productId,
-                        'meta_key' => $key,
-                        'meta_value' => $value,
-                    ]);
-                }
-            }
-
-            // Process categories
-            $this->saveTerms($productId, $this->categories, 'product_cat');
-
-            // Process tags
-            if (!empty($this->tags)) {
-                $this->saveTerms($productId, $this->tags, 'product_tag');
-            }
-        });
-
+        // Xử lý danh mục
+        $this->saveTerms($postId, $this->categories, 'product_cat');
+        // Xử lý thẻ
+         if (!empty($this->tags)) {
+            $this->saveTerms($postId, $this->tags, 'product_tag');
+        }
+        // Thông báo thành công
         session()->flash('success', 'Product added successfully!');
         $this->reset();
     }
@@ -137,7 +127,7 @@ class AddProduct extends Component
         foreach ($this->gallery as $image) {
             $imagePath = $image->store('products/gallery', 'public');
             
-            $attachmentId = DB::table('wp_posts')->insertGetId([
+            $attachment = WpPost::create([
                 'post_author' => auth()->id() ?? 1,
                 'post_title' => $this->name . ' Gallery Image',
                 'post_status' => 'inherit',
@@ -145,11 +135,12 @@ class AddProduct extends Component
                 'guid' => asset('storage/' . $imagePath),
                 'post_mime_type' => $image->getMimeType(),
                 'post_name' => 'product-' . $productId . '-gallery-' . count($galleryIds),
+                'post_content' => '',
                 'post_date' => now(),
                 'post_date_gmt' => now(),
             ]);
 
-            $galleryIds[] = $attachmentId;
+            $galleryIds[] = $attachment->id;
         }
 
         return implode(',', $galleryIds);
@@ -163,35 +154,37 @@ class AddProduct extends Component
         foreach ($termsArray as $term) {
             $termSlug = Str::slug($term);
 
-            // Check if term exists
-            $existingTerm = DB::table('wp_terms')->where('slug', $termSlug)->first();
+            // Kiểm tra xem term đã tồn tại chưa
+            $existingTerm = WpTerm::where('slug', $termSlug)->first();
 
             if ($existingTerm) {
-                $termId = $existingTerm->term_id;
+                $termId = $existingTerm->id;
             } else {
-                // Create new term
-                $termId = DB::table('wp_terms')->insertGetId([
+                // Tạo term mới
+                $term = WpTerm::create([
                     'name' => $term,
                     'slug' => $termSlug,
                     'term_group' => 0,
                 ]);
 
-                // Create term taxonomy
-                DB::table('wp_term_taxonomy')->insert([
-                    'term_id' => $termId,
+                // Tạo term taxonomy
+                WpTermTaxonomy::create([
+                    'term_id' => $term->id,
                     'taxonomy' => $taxonomy,
                     'description' => '',
                     'parent' => 0,
                     'count' => 0,
                 ]);
+
+                $termId = $term->id;
             }
 
             $termIds[] = $termId;
         }
 
-        // Assign terms to product
+        // Gán terms cho sản phẩm
         foreach ($termIds as $termId) {
-            DB::table('wp_term_relationships')->insert([
+            WpTermRelationship::create([
                 'object_id' => $productId,
                 'term_taxonomy_id' => $termId,
                 'term_order' => 0,
@@ -201,8 +194,7 @@ class AddProduct extends Component
 
     public function getCategories()
     {
-        return DB::table('wp_terms')
-            ->join('wp_term_taxonomy', 'wp_terms.term_id', '=', 'wp_term_taxonomy.term_id')
+        return WpTerm::join('wp_term_taxonomy', 'wp_terms.term_id', '=', 'wp_term_taxonomy.term_id')
             ->where('wp_term_taxonomy.taxonomy', 'product_cat')
             ->select('wp_terms.term_id', 'wp_terms.name')
             ->orderBy('wp_terms.name')

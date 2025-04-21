@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Option extends Model
+class WpOption extends Model
 {
     protected $table = 'wp_options';
     protected $primaryKey = 'option_id';

@@ -51,10 +51,10 @@ class MysqlDatabase extends Command
     {
         $this->info("php artisan db:mysql create ten-database");
         $this->info("php artisan db:mysql delete ten-database");
-        $this->info("php artisan db:mysql backupDatabase ten-database");
-        $this->info("php artisan db:mysql restoreDatabase ten-database");
-        $this->info("php artisan db:mysql importFileMySQL ten-file.sql");
-        $this->info("php artisan db:mysql runQuery cau-lenh-mysql");
+        $this->info("php artisan db:mysql backup ten-database");
+        $this->info("php artisan db:mysql restore ten-database");
+        $this->info("php artisan db:mysql import ten-file.sql");
+        $this->info("php artisan db:mysql query cau-lenh-mysql");
         $this->info("php artisan db:mysql show");
     }
     protected function createDatabase($name)
@@ -155,7 +155,7 @@ class MysqlDatabase extends Command
                 DB::statement($query);
             }
         }
-
+        $this->info("Import successfully.");
         return true; // Hoàn thành import
     }
 

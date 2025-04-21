@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Post extends Model
+class WpPost extends Model
 {
     protected $table = 'wp_posts';
     protected $primaryKey = 'ID';

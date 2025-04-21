@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class UserMeta extends Model
+class WpUserMeta extends Model
 {
     protected $table = 'wp_usermeta';
     protected $primaryKey = 'umeta_id';
