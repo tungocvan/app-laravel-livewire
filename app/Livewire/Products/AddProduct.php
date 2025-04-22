@@ -70,8 +70,7 @@ class AddProduct extends Component
         // Upload main image
         $imagePath = $this->image->store('products', 'public');
 
-        // Insert to wp_posts
-        $postId = DB::table('wp_posts')->insertGetId([
+        $product = [
             'post_author'      => 1,
             'post_date'        => Carbon::now(),
             'post_date_gmt'    => Carbon::now('UTC'),
@@ -89,7 +88,11 @@ class AddProduct extends Component
             'post_modified_gmt' => Carbon::now('UTC'),
             'guid'             => url('storage/' . $imagePath),
             'post_type'        => 'product',
-        ]);
+        ];
+        //dd($product);
+        //dd($this->gallery);
+        // Insert to wp_posts
+        $postId = DB::table('wp_posts')->insertGetId($product);
 
         // Insert meta data (price, sale price, image)
         DB::table('wp_postmeta')->insert([
@@ -99,17 +102,12 @@ class AddProduct extends Component
         ]);
 
         // (Optional) Upload gallery images
-        if (!empty($this->gallery)) {
-            foreach ($this->gallery as $file) {
-                $file->store('products/gallery', 'public');
-                // Nếu cần lưu thêm gallery path hoặc gắn vào postmeta, xử lý ở đây
-            }
-        }
+        $this->processGalleryImages($postId);
 
         // Xử lý danh mục
         $this->saveTerms($postId, $this->categories, 'product_cat');
         // Xử lý thẻ
-         if (!empty($this->tags)) {
+        if (!empty($this->tags)) {
             $this->saveTerms($postId, $this->tags, 'product_tag');
         }
         // Thông báo thành công
