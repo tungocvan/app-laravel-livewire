@@ -13,7 +13,12 @@
 @section('css')
     {{-- Add here extra stylesheets --}}
     {{-- <link rel="stylesheet" href="/css/admin_custom.css"> --}}
-
+    <style>
+        .dropdown-menu {
+            max-height: 300px; /* Chiều cao tối đa */
+            overflow-y: auto; /* Cuộn dọc */
+        }
+    </style>
 @stop
 
 @section('js')

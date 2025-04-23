@@ -21,7 +21,7 @@ class AddProduct extends Component
     public $description;
     public $image;
     public $gallery = [];
-    public $categories = '';
+    public $categories = [];
     public $regularPrice;
     public $salePrice;
     public $shortDescription;
@@ -57,11 +57,13 @@ class AddProduct extends Component
 
     public function submit()
     {
+     
         $this->validate([
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'shortDescription' => 'required|string|max:1000',
-            'categories' => 'required|numeric',
+            'categories' => 'required|array|min:1',
+            'categories.*' => 'required|numeric',
             'regularPrice' => 'required|numeric',
             'image' => 'required|image|max:2048', // 2MB
             'gallery.*' => 'nullable|image|max:2048',
@@ -91,6 +93,7 @@ class AddProduct extends Component
         ];
         //dd($product);
         //dd($this->gallery);
+        
         // Insert to wp_posts
         $postId = DB::table('wp_posts')->insertGetId($product);
 
@@ -105,10 +108,11 @@ class AddProduct extends Component
         $this->processGalleryImages($postId);
 
         // Xử lý danh mục
-        $this->saveTerms($postId, $this->categories, 'product_cat');
+        $this->saveTerms($postId, $this->categories);
         // Xử lý thẻ
         if (!empty($this->tags)) {
-            $this->saveTerms($postId, $this->tags, 'product_tag');
+            //$this->saveTerms($postId, $this->tags, 'product_tag');
+            $this->saveProductTags($postId, $this->tags);
         }
         // Thông báo thành công
         session()->flash('success', 'Product added successfully!');
@@ -134,6 +138,10 @@ class AddProduct extends Component
                 'post_mime_type' => $image->getMimeType(),
                 'post_name' => 'product-' . $productId . '-gallery-' . count($galleryIds),
                 'post_content' => '',
+                'post_excerpt'     => '',
+                'to_ping' => '',  // Thêm giá trị mặc định
+                'pinged' => '',   // Thêm giá trị mặc định
+                'post_content_filtered' => '', // Thêm giá trị mặc định
                 'post_date' => now(),
                 'post_date_gmt' => now(),
             ]);
@@ -144,47 +152,77 @@ class AddProduct extends Component
         return implode(',', $galleryIds);
     }
 
-    protected function saveTerms($productId, $terms, $taxonomy)
+    protected function saveTerms($productId, $terms)
     {
-        $termIds = [];
-        $termsArray = array_filter(array_map('trim', explode(',', $terms)));
+        foreach ($terms as $term_id) {       
+                // Gán terms cho sản phẩm
+                WpTermRelationship::create([
+                    'object_id' => $productId,
+                    'term_taxonomy_id' => $term_id,
+                    'term_order' => 0,
+                ]);
+        }
 
-        foreach ($termsArray as $term) {
-            $termSlug = Str::slug($term);
+    }
 
-            // Kiểm tra xem term đã tồn tại chưa
-            $existingTerm = WpTerm::where('slug', $termSlug)->first();
 
-            if ($existingTerm) {
-                $termId = $existingTerm->id;
+    protected function saveProductTags($productId, $tags)
+    {
+        $tagIds = [];
+        $tagsArray = array_filter(array_map('trim', explode(',', $tags)));
+
+        foreach ($tagsArray as $tag) {
+            $tagSlug = Str::slug($tag);
+
+            // Kiểm tra xem tag đã tồn tại chưa
+            $existingTag = WpTerm::where('slug', $tagSlug)->first();
+
+            if ($existingTag) {
+                $tagId = $existingTag->term_id; // Sử dụng term_id
             } else {
-                // Tạo term mới
-                $term = WpTerm::create([
-                    'name' => $term,
-                    'slug' => $termSlug,
+                // Tạo tag mới
+                $newTag = WpTerm::create([
+                    'name' => $tag,
+                    'slug' => $tagSlug,
                     'term_group' => 0,
                 ]);
 
-                // Tạo term taxonomy
-                WpTermTaxonomy::create([
-                    'term_id' => $term->id,
-                    'taxonomy' => $taxonomy,
-                    'description' => '',
-                    'parent' => 0,
-                    'count' => 0,
-                ]);
+                // Kiểm tra nếu tag mới được tạo thành công
+                if ($newTag) {
+                    // Tạo term taxonomy cho tag
+                   
+                    $taxonomyCreated = WpTermTaxonomy::create([
+                        'term_id' => $newTag->term_id, // Sử dụng term_id
+                        'taxonomy' => 'product_tag',
+                        'description' => '',
+                        'parent' => 0,
+                        'count' => 0,
+                    ]);
 
-                $termId = $term->id;
+                    if ($taxonomyCreated) {
+                        $tagId = $newTag->term_id; // Sử dụng term_id
+                    } else {
+                        // Xử lý khi tạo taxonomy thất bại
+                        session()->flash('error', 'Không thể tạo taxonomy cho tag: ' . $tag);
+                        continue; // Bỏ qua tag này
+                    }
+                } else {
+                    // Xử lý khi tạo tag thất bại
+                    session()->flash('error', 'Không thể tạo tag: ' . $tag);
+                    continue; // Bỏ qua tag này
+                }
             }
 
-            $termIds[] = $termId;
+            if (isset($tagId)) {
+                $tagIds[] = $tagId;
+            }
         }
 
-        // Gán terms cho sản phẩm
-        foreach ($termIds as $termId) {
+        // Gán tags cho sản phẩm
+        foreach ($tagIds as $tagId) {
             WpTermRelationship::create([
                 'object_id' => $productId,
-                'term_taxonomy_id' => $termId,
+                'term_taxonomy_id' => $tagId,
                 'term_order' => 0,
             ]);
         }

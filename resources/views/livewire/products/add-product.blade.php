@@ -37,16 +37,7 @@
                     </div>
 
                     <div class="col-md-4">
-                        <div class="form-group">
-                            <label for="categories">Categories <span class="text-danger">*</span></label>
-                            <select wire:model.defer="categories" id="categories" class="form-control @error('categories') is-invalid @enderror" required>
-                                <option value="">Select Category</option>
-                                @foreach($allCategories as $category)
-                                    <option value="{{ $category->term_id }}">{{ $category->name }}</option>
-                                @endforeach
-                            </select>
-                            @error('categories') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                        </div>
+                        
 
                         <div class="form-group">
                             <label for="tags">Tags</label>
@@ -69,7 +60,7 @@
                         <div class="form-group">
                             <label>Main Image <span class="text-danger">*</span></label>
                             <div class="custom-file">
-                                <input type="file" wire:model="image" class="custom-file-input @error('image') is-invalid @enderror" id="image" accept="image/*" required>
+                                <input type="file" wire:model="image" class="custom-file-input @error('image') is-invalid @enderror" id="image" accept="image/*">
                                 <label class="custom-file-label" for="image">
                                     @if($image)
                                         {{ $image->getClientOriginalName() }}
@@ -105,6 +96,29 @@
                                 @endif
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label>Categories <span class="text-danger">*</span></label>
+                            <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownCategories" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Select Categories
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="dropdownCategories">
+                                    @foreach($allCategories as $category)
+                                        <div class="form-check m-2">
+                                            <input type="checkbox" 
+                                                   wire:model.defer="categories" 
+                                                   value="{{ $category->term_id }}" 
+                                                   id="category_{{ $category->term_id }}" 
+                                                   class="form-check-input">
+                                            <label class="form-check-label" for="category_{{ $category->term_id }}">
+                                                {{ $category->name }}
+                                            </label>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                            @error('categories') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
                     </div>
                 </div>
 
@@ -128,6 +142,7 @@
             var nextSibling = e.target.nextElementSibling;
             nextSibling.innerText = fileName;
         });
+        $('.dropdown-toggle').dropdown();
     });
 </script>
 @endpush
