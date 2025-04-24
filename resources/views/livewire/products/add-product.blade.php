@@ -8,7 +8,7 @@
         </div>
     @endif
 
-    <div class="card">
+    <div class="card" x-data="formData">
         <div class="card-header">
             <h4 class="mb-0">Add New Product</h4>
         </div>
@@ -60,7 +60,10 @@
                         <div class="form-group">
                             <label>Main Image <span class="text-danger">*</span></label>
                             <div class="custom-file">
-                                <input type="file" wire:model="image" class="custom-file-input @error('image') is-invalid @enderror" id="image" accept="image/*">
+                                <input type="file" wire:model="image" class="custom-file-input @error('image') is-invalid @enderror" id="image" accept="image/*" 
+                                        x-ref="fileInput"
+                                        @change="handleFile">                                           
+                                        
                                 <label class="custom-file-label" for="image">
                                     @if($image)
                                         {{ $image->getClientOriginalName() }}
@@ -71,8 +74,8 @@
                             </div>
                             @error('image') <div class="text-danger small">{{ $message }}</div> @enderror
                             @if($image)
-                                <div class="mt-2">
-                                    <img src="{{ $image->temporaryUrl() }}" class="img-thumbnail" width="120">
+                                <div class="mt-2">                                    
+                                    <img :src="previewUrl" alt="Preview" class="img-thumbnail" width="80">
                                 </div>
                             @endif
                         </div>
@@ -84,16 +87,14 @@
                             </button>
                             
                             <div x-show="showGallery" x-transition class="border p-3 rounded">
-                                <input type="file" wire:model="gallery" multiple class="form-control-file">
+                                <input type="file" wire:model="gallery" multiple class="form-control-file" @change="handleFileMulti">
                                 <small class="text-muted">You can select multiple images</small>
                                 
-                                @if($gallery)
-                                    <div class="mt-2 d-flex flex-wrap">
-                                        @foreach($gallery as $image)
-                                            <img src="{{ $image->temporaryUrl() }}" class="img-thumbnail mr-2 mb-2" width="80">
-                                        @endforeach
-                                    </div>
-                                @endif
+                                <div id="previewUrls" class="mt-2 d-flex flex-wrap">
+                                    <template x-for="url in previewUrls" :key="url">
+                                        <img :src="url" class="img-thumbnail mr-2" />
+                                    </template>
+                                </div>
                             </div>
                         </div>
                         <div class="form-group">
@@ -133,16 +134,39 @@
     </div>
 </div>
 
-@push('scripts')
+@script
 <script>
-    document.addEventListener('livewire:load', function() {
-        // Update custom file input label
-        document.getElementById('image').addEventListener('change', function(e) {
-            var fileName = e.target.files[0]?.name || 'Choose file';
-            var nextSibling = e.target.nextElementSibling;
-            nextSibling.innerText = fileName;
-        });
+    Alpine.data("formData", () => ({
+        previewUrl: null,
+        previewUrls: [],        
+        handleFile(event) {
+              let file = event.target.files[0];
+              this.fileName = file ? file.name : "Choose file";
+              if (file) {
+                let reader = new FileReader();
+                reader.onload = (e) => this.previewUrl = e.target.result;
+                reader.readAsDataURL(file);
+             }
+        },
+        handleFileMulti(event) {
+            const files = event.target.files;           
+            if (files) {
+                Array.from(files).forEach(file => {
+                    let reader = new FileReader();                    
+                    reader.onload = (e) => {
+                        this.previewUrls.push(e.target.result);                    
+                    }
+                    reader.readAsDataURL(file);
+                });
+            }
+        }
+    }))
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // Update custom file input label    
         $('.dropdown-toggle').dropdown();
+
     });
+
 </script>
-@endpush
+@endscript
