@@ -20,8 +20,9 @@ class AddProduct extends Component
     public $name;
     public $description;
     public $image;
-    public $gallery = [];
-    public $categories = [];
+    public $gallery = [];  
+    public $categoriesTree = [];
+    public $selectedCategories = [];
     public $regularPrice;
     public $salePrice;
     public $shortDescription;
@@ -34,7 +35,7 @@ class AddProduct extends Component
         'regularPrice' => 'required|numeric|min:0',
         'salePrice' => 'nullable|numeric|lt:regularPrice',
         'shortDescription' => 'required|string|max:500',
-        'categories' => 'required|string',
+        'selectedCategories' => 'required|string',
         'tags' => 'nullable|string',
     ];
 
@@ -44,12 +45,8 @@ class AddProduct extends Component
 
     public function render()
     {
-        $allCategories = DB::table('wp_terms')
-            ->join('wp_term_taxonomy', 'wp_terms.term_id', '=', 'wp_term_taxonomy.term_id')
-            ->where('wp_term_taxonomy.taxonomy', 'product_cat')
-            ->select('wp_terms.term_id', 'wp_terms.name')
-            ->get();
-
+        $allCategories = $this->getCategories();
+        $this->categoriesTree = $this->buildTree($allCategories->toArray());
         return view('livewire.products.add-product', [
             'allCategories' => $allCategories,
         ]);
@@ -57,13 +54,13 @@ class AddProduct extends Component
 
     public function submit()
     {
-     
+       
         $this->validate([
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'shortDescription' => 'required|string|max:1000',
-            'categories' => 'required|array|min:1',
-            'categories.*' => 'required|numeric',
+            'selectedCategories' => 'required|array|min:1',
+            'selectedCategories.*' => 'required|numeric',
             'regularPrice' => 'required|numeric',
             'image' => 'required|image|max:2048', // 2MB
             'gallery.*' => 'nullable|image|max:2048',
@@ -230,10 +227,25 @@ class AddProduct extends Component
 
     public function getCategories()
     {
-        return WpTerm::join('wp_term_taxonomy', 'wp_terms.term_id', '=', 'wp_term_taxonomy.term_id')
-            ->where('wp_term_taxonomy.taxonomy', 'product_cat')
-            ->select('wp_terms.term_id', 'wp_terms.name')
-            ->orderBy('wp_terms.name')
-            ->get();
+        return  DB::table('wp_terms')
+        ->join('wp_term_taxonomy', 'wp_terms.term_id', '=', 'wp_term_taxonomy.term_id')
+        ->where('wp_term_taxonomy.taxonomy', 'product_cat')
+        ->select('wp_terms.term_id', 'wp_terms.name','wp_term_taxonomy.parent')
+        ->get();
+    }
+
+    protected function buildTree(array $elements, $parentId = 0)
+    {
+        $branch = [];
+        foreach ($elements as $element) {
+            if ($element->parent == $parentId) {
+                $children = $this->buildTree($elements, $element->term_id);
+                if ($children) {
+                    $element->children = $children; // Thêm danh mục con vào đối tượng
+                }
+                $branch[] = $element;
+            }
+        }
+        return $branch;
     }
 }

@@ -2,6 +2,7 @@
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Write code on Method
@@ -104,4 +105,13 @@ function loadMenuFromJson($filePath)
     }
 
     return $menuArray;
+}
+
+function getCategories($taxonomy)
+{
+    return DB::table('wp_terms')
+        ->join('wp_term_taxonomy', 'wp_terms.term_id', '=', 'wp_term_taxonomy.term_id')
+        ->where('wp_term_taxonomy.taxonomy', $taxonomy)
+        ->select('wp_terms.term_id', 'wp_terms.name', 'wp_term_taxonomy.parent')
+        ->get();
 }

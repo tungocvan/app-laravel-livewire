@@ -80,23 +80,7 @@
                             @endif
                         </div>
 
-                        <div class="form-group">
-                            <label>Gallery Images</label>
-                            <button type="button" @click="showGallery = !showGallery" class="btn btn-sm btn-outline-secondary mb-2">
-                                <span x-text="showGallery ? 'Hide Gallery' : 'Add Gallery Images'"></span>
-                            </button>
-                            
-                            <div x-show="showGallery" x-transition class="border p-3 rounded">
-                                <input type="file" wire:model="gallery" multiple class="form-control-file" @change="handleFileMulti">
-                                <small class="text-muted">You can select multiple images</small>
-                                
-                                <div id="previewUrls" class="mt-2 d-flex flex-wrap">
-                                    <template x-for="url in previewUrls" :key="url">
-                                        <img :src="url" class="img-thumbnail mr-2" />
-                                    </template>
-                                </div>
-                            </div>
-                        </div>
+                        {{-- <livewire:category :taxonomy="'product_cat'" /> --}}
                         <div class="form-group">
                             <label>Categories <span class="text-danger">*</span></label>
                             <div class="dropdown">
@@ -104,22 +88,27 @@
                                     Select Categories
                                 </button>
                                 <div class="dropdown-menu" aria-labelledby="dropdownCategories">
-                                    @foreach($allCategories as $category)
-                                        <div class="form-check m-2">
-                                            <input type="checkbox" 
-                                                   wire:model.defer="categories" 
-                                                   value="{{ $category->term_id }}" 
-                                                   id="category_{{ $category->term_id }}" 
-                                                   class="form-check-input">
-                                            <label class="form-check-label" for="category_{{ $category->term_id }}">
-                                                {{ $category->name }}
-                                            </label>
-                                        </div>
+                                    @foreach($categoriesTree as $category)
+                                        @include('livewire.products.partials.category', ['category' => $category])
                                     @endforeach
                                 </div>
                             </div>
-                            @error('categories') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            @error('selectedCategories') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
+                        {{-- <div class="form-group">
+                            <label>Categories <span class="text-danger">*</span></label>
+                            <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownCategories" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Select Categories
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="dropdownCategories">
+                                    @foreach($categoriesTree as $category)
+                                        @include('livewire.products.partials.category', ['category' => $category])
+                                    @endforeach
+                                </div>
+                            </div>
+                            @error('selectedCategories') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div> --}}
                     </div>
                 </div>
 
