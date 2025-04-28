@@ -44,12 +44,12 @@ class AddProduct extends Component
     ];
 
     protected $rules = [
-        'name' => 'required|string|max:255',
+        'name' => 'required|string',
         'description' => 'required|string',
-        'image' => 'required|image|max:2048',
+        'image' => 'required|image',
         'regularPrice' => 'required|numeric|min:0',
         'salePrice' => 'nullable|numeric|lt:regularPrice',
-        'shortDescription' => 'required|string|max:500',
+        'shortDescription' => 'required|string',
         'selectedCategories' => 'required|array|min:1' 
     ];
 
@@ -74,9 +74,11 @@ class AddProduct extends Component
         // Upload main image
         if(isset($this->image)){
             $imagePath = $this->image->store('products', 'public');
+            
         }
         
-
+        //dd($imagePath);
+        
         $product = [
             'post_author'      => 1,
             'post_date'        => Carbon::now(),
@@ -97,7 +99,7 @@ class AddProduct extends Component
             'post_type'        => 'product',
         ];
         $this->validate($this->rules);
-        
+        // dd($product);
         //dd($this->gallery);
         
         // Insert to wp_posts
@@ -107,6 +109,7 @@ class AddProduct extends Component
         DB::table('wp_postmeta')->insert([
             ['post_id' => $postId, 'meta_key' => '_regular_price', 'meta_value' => $this->regularPrice],
             ['post_id' => $postId, 'meta_key' => '_price', 'meta_value' => $this->salePrice ?? $this->regularPrice],
+            ['post_id' => $postId, 'meta_key' => '_categories', 'meta_value' => serialize($this->selectedCategories)],
             ['post_id' => $postId, 'meta_key' => '_thumbnail_id', 'meta_value' => $imagePath],
         ]);
 
@@ -148,12 +151,15 @@ class AddProduct extends Component
                 'to_ping' => '',  // Thêm giá trị mặc định
                 'pinged' => '',   // Thêm giá trị mặc định
                 'post_content_filtered' => '', // Thêm giá trị mặc định
+                'post_parent' => $productId, 
                 'post_date' => now(),
                 'post_date_gmt' => now(),
             ]);
 
             $galleryIds[] = $attachment->id;
         }
+
+        
 
         return implode(',', $galleryIds);
     }

@@ -3,7 +3,7 @@
 namespace App\Livewire\Users;
 
 use Livewire\Component;
-use App\Models\User;
+use App\Models\User; 
 use Spatie\Permission\Models\Role;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
