@@ -1,5 +1,5 @@
 @extends('adminlte::page')
-
+@section('plugins.Summernote', true)
 @section('title', 'Settings')
 
 @section('content_header')

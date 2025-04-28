@@ -17,7 +17,7 @@ class AddProduct extends Component
 {
     use WithFileUploads;
 
-    public $name;
+    public $name;   
     public $description;
     public $image;
     public $gallery = [];  
@@ -27,6 +27,21 @@ class AddProduct extends Component
     public $salePrice;
     public $shortDescription;
     public $tags = '';
+    public $config = [
+        "height" => "200",
+        "toolbar" => [
+            ['style', ['bold', 'italic', 'underline', 'clear']],
+            ['font', ['strikethrough', 'superscript', 'subscript']],
+            ['fontsize', ['fontsize']],
+            ['fontname', ['fontname']],
+            ['color', ['color']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['height', ['height']],
+            ['table', ['table']],
+            ['insert', ['link', 'picture', 'video', 'lfm']],
+            ['view', ['fullscreen', 'codeview', 'help']],
+        ],
+    ];
 
     protected $rules = [
         'name' => 'required|string|max:255',
@@ -35,13 +50,13 @@ class AddProduct extends Component
         'regularPrice' => 'required|numeric|min:0',
         'salePrice' => 'nullable|numeric|lt:regularPrice',
         'shortDescription' => 'required|string|max:500',
-        'selectedCategories' => 'required|string',
-        'tags' => 'nullable|string',
+        'selectedCategories' => 'required|array|min:1' 
     ];
 
     protected $messages = [
         'salePrice.lt' => 'The sale price must be less than regular price.',
     ];
+
 
     public function render()
     {
@@ -54,20 +69,13 @@ class AddProduct extends Component
 
     public function submit()
     {
-       
-        $this->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'shortDescription' => 'required|string|max:1000',
-            'selectedCategories' => 'required|array|min:1',
-            'selectedCategories.*' => 'required|numeric',
-            'regularPrice' => 'required|numeric',
-            'image' => 'required|image|max:2048', // 2MB
-            'gallery.*' => 'nullable|image|max:2048',
-        ]);
-
+        
+        $imagePath = null;
         // Upload main image
-        $imagePath = $this->image->store('products', 'public');
+        if(isset($this->image)){
+            $imagePath = $this->image->store('products', 'public');
+        }
+        
 
         $product = [
             'post_author'      => 1,
@@ -85,10 +93,11 @@ class AddProduct extends Component
             'post_name'        => Str::slug($this->name),
             'post_modified'    => Carbon::now(),
             'post_modified_gmt' => Carbon::now('UTC'),
-            'guid'             => url('storage/' . $imagePath),
+            'guid'             => $imagePath?url('storage/' . $imagePath):'',
             'post_type'        => 'product',
         ];
-        //dd($product);
+        $this->validate($this->rules);
+        
         //dd($this->gallery);
         
         // Insert to wp_posts
@@ -105,7 +114,7 @@ class AddProduct extends Component
         $this->processGalleryImages($postId);
 
         // Xử lý danh mục
-        $this->saveTerms($postId, $this->categories);
+        $this->saveTerms($postId, $this->selectedCategories);
         // Xử lý thẻ
         if (!empty($this->tags)) {
             //$this->saveTerms($postId, $this->tags, 'product_tag');
@@ -248,4 +257,15 @@ class AddProduct extends Component
         }
         return $branch;
     }
+
+    public function hanlderEditor($id,$data){
+        //dd($id,$data);
+        if($id === "description"){
+            $this->description = $data;
+        }
+        if($id === "shortDescription"){
+            $this->shortDescription = $data;
+        }
+    }
+
 }

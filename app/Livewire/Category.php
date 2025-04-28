@@ -6,7 +6,8 @@ use Livewire\Component;
 
 class Category extends Component
 {
-    public $selectedCategories = [];
+
+    public $selectedCategories;
     public $categoriesTree = [];
 
     public function mount($taxonomy = 'product_cat')
@@ -33,7 +34,8 @@ class Category extends Component
     public function updatedSelectedCategories($value)
     {
         // Kiểm tra giá trị khi nó thay đổi
-        dd($value);
+        //$this->selectedCategories = $value;
+        //dd($value);
     }
 
     public function render()

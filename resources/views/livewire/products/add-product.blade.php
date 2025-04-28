@@ -23,17 +23,24 @@
                             @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
-                        <div class="form-group">
-                            <label for="description">Product Description <span class="text-danger">*</span></label>
-                            <textarea wire:model.defer="description" id="description" rows="5" class="form-control @error('description') is-invalid @enderror" required></textarea>
-                            @error('description') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                        </div>
+                                       
+                        <div class="form-group">                        
+                            <div wire:ignore x-data="{ name: 'description' }">              
+                                <x-adminlte-text-editor name="description" id="description"  label="Mô tả sản phẩm" label-class="text-danger"
+                                igroup-size="sm" placeholder="Write some text..." :config="$config"/>                               
+                                @error('description') <div class="invalid-feedback">{{ $message }}</div> @enderror                      
+                            </div>    
+                        </div> 
 
-                        <div class="form-group">
-                            <label for="shortDescription">Short Description <span class="text-danger">*</span></label>
-                            <textarea wire:model.defer="shortDescription" id="shortDescription" rows="3" class="form-control @error('shortDescription') is-invalid @enderror" required></textarea>
-                            @error('shortDescription') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                        </div>
+                        <div class="form-group">                        
+                            <div wire:ignore x-data="{ name: 'shortDescription' }">              
+                                <x-adminlte-text-editor name="shortDescription" id="shortDescription"  label="Mô tả ngắn" label-class="text-danger"
+                                igroup-size="sm" placeholder="Write some text..." :config="$config"/>
+                                @error('shortDescription') <div class="invalid-feedback">{{ $message }}</div> @enderror                        
+                            </div>    
+                        </div> 
+                       
+                      
                     </div>
 
                     <div class="col-md-4">
@@ -78,6 +85,18 @@
                                     <img :src="previewUrl" alt="Preview" class="img-thumbnail" width="80">
                                 </div>
                             @endif
+                        </div>
+                        <div class="form-group">
+                            <div x-transition class="border p-3 rounded">                             
+                                <input type="file" wire:model="gallery" multiple class="form-control-file" @change="handleFileMulti">
+                                <small class="text-muted">You can select multiple images</small>
+                                
+                                <div id="previewUrls" class="mt-2 d-flex flex-wrap">
+                                    <template x-for="url in previewUrls" :key="url">
+                                        <img :src="url" class="img-thumbnail mr-2" />
+                                    </template>
+                                </div>
+                            </div>
                         </div>
 
                         {{-- <livewire:category :taxonomy="'product_cat'" /> --}}
@@ -156,6 +175,41 @@
         $('.dropdown-toggle').dropdown();
 
     });
+
+    document.addEventListener('livewire:initialized', () => {
+        function editorSummerNote(id) {  
+            let data = ''; // Biến lưu nội dung của trình soạn thảo
+            let editor = $('#'+id);
+            editor.on('summernote.change', function(_, contents) {
+                data = contents;
+            });  
+            editor.on('summernote.blur.prevent', function() { 
+                $wire.hanlderEditor(id,data);        
+            })
+            $.extend($.summernote.options, {
+                   buttons: {
+                       lfm: function(context) {
+                           let ui = $.summernote.ui;
+                           let button = ui.button({
+                               contents: '<i class="fa fa-image"></i> LFM', // Icon Font Awesome
+                               tooltip: "Chèn ảnh từ LFM",
+                               click: function() {                                
+                                   let route_prefix = "/laravel-filemanager";
+                                   window.open(route_prefix + "?type=image", "FileManager", "width=900,height=600");
+                                   window.SetUrl = function(items) {
+                                       let url = items.map(item => item.url).join(",");
+                                       $(id).summernote('insertImage', url);
+                                   };
+                               }
+                           });
+                           return button.render();
+                       }
+                   }
+               }); 
+        }
+        editorSummerNote('description')
+        editorSummerNote('shortDescription')
+    })
 
 </script>
 @endscript

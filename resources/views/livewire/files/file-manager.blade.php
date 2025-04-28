@@ -1,5 +1,5 @@
 <div>
-    @livewire('email.attach-file')
+    {{-- @livewire('email.attach-file')
     <div class="input-group">
         <span class="input-group-btn">
           <a id="lfm" data-input="thumbnail" data-preview="holder" class="btn btn-primary">
@@ -10,7 +10,7 @@
     </div>
     <div id="holder" style="margin-top:15px;max-height:100px;"></div>
     
-    <hr>
+    <hr> --}}
     <div>
        <div wire:ignore x-data="{ name: 'editor_' + Math.floor(Math.random() * 10000) }">              
                <x-adminlte-text-editor name="{{ $name }}" id="{{ $name }}"  label="{{ $label }}" label-class="text-danger"
@@ -39,12 +39,7 @@
                        let data = ''; // Biến lưu nội dung của trình soạn thảo
                        let editor = $(id);
                        editor.on('summernote.change', function(_, contents) {
-                           data = contents; // Cập nhật nội dung vào biến                           
-                           
-                           // $('#editorContainer input:text').val(data); // Hiển thị nội dung đã nhập
-                           
-                           
-
+                           data = contents; 
                        });   
                        // Khi blur khỏi trình soạn thảo, cập nhật vào Livewire
                        editor.on('summernote.blur.prevent', function() {            
@@ -84,8 +79,8 @@
                    }
                });   
 
-               var route_prefix = "/laravel-filemanager";
-               $('#lfm').filemanager('file', {prefix: route_prefix});
+            //    var route_prefix = "/laravel-filemanager";
+            //    $('#lfm').filemanager('file', {prefix: route_prefix});
            })
        </script>
      @endscript
