@@ -27,7 +27,7 @@
                         <div class="form-group">                        
                             <div wire:ignore x-data="{ name: 'description' }">              
                                 <x-adminlte-text-editor name="description" id="description"  label="Mô tả sản phẩm" label-class="text-danger"
-                                igroup-size="sm" placeholder="Write some text..." :config="$config"/>                               
+                                igroup-size="sm" placeholder="Write some text..." />                               
                                 @error('description') <div class="invalid-feedback">{{ $message }}</div> @enderror                      
                             </div>    
                         </div> 
@@ -35,7 +35,7 @@
                         <div class="form-group">                        
                             <div wire:ignore x-data="{ name: 'shortDescription' }">              
                                 <x-adminlte-text-editor name="shortDescription" id="shortDescription"  label="Mô tả ngắn" label-class="text-danger"
-                                igroup-size="sm" placeholder="Write some text..." :config="$config"/>
+                                igroup-size="sm" placeholder="Write some text..." />
                                 @error('shortDescription') <div class="invalid-feedback">{{ $message }}</div> @enderror                        
                             </div>    
                         </div> 
@@ -177,38 +177,64 @@
     });
 
     document.addEventListener('livewire:initialized', () => {
-        function editorSummerNote(id) {  
-            let data = ''; // Biến lưu nội dung của trình soạn thảo
-            let editor = $('#'+id);
+        
+        function createLfmButton(id) {
+            return function(context) {
+                let ui = $.summernote.ui;
+                let button = ui.button({
+                    contents: '<i class="fa fa-image"></i> LFM',
+                    tooltip: "Chèn ảnh từ LFM",
+                    click: function() {
+                        let route_prefix = "/laravel-filemanager";
+                        window.open(route_prefix + "?type=image", "FileManager", "width=900,height=600");
+                        window.SetUrl = function(items) {
+                            let url = items.map(item => item.url).join(",");
+                            $('#' + id).summernote('insertImage', url);
+                        };
+                    }
+                });
+                return button.render();
+            }
+        }
+
+      
+        function editorSummerNote(id) {
+            let data = '';
+            let editor = $('#' + id);
+
+            editor.summernote({   
+                height:200,             
+                toolbar: [
+                ['style', ['bold', 'italic', 'underline', 'clear']],
+                ['font', ['strikethrough', 'superscript', 'subscript']],
+                ['fontsize', ['fontsize']],
+                ['fontname', ['fontname']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['height', ['height']],
+                ['table', ['table']],
+                ['insert', ['lfm','link', 'picture', 'video']],
+                ['view', ['fullscreen', 'codeview', 'help']],
+            ],
+                buttons: {
+                    lfm: createLfmButton(id)
+                }
+            });
+
             editor.on('summernote.change', function(_, contents) {
                 data = contents;
-            });  
-            editor.on('summernote.blur.prevent', function() { 
-                $wire.hanlderEditor(id,data);        
-            })
-            $.extend($.summernote.options, {
-                   buttons: {
-                       lfm: function(context) {
-                           let ui = $.summernote.ui;
-                           let button = ui.button({
-                               contents: '<i class="fa fa-image"></i> LFM', // Icon Font Awesome
-                               tooltip: "Chèn ảnh từ LFM",
-                               click: function() {                                
-                                   let route_prefix = "/laravel-filemanager";
-                                   window.open(route_prefix + "?type=image", "FileManager", "width=900,height=600");
-                                   window.SetUrl = function(items) {
-                                       let url = items.map(item => item.url).join(",");
-                                       $(id).summernote('insertImage', url);
-                                   };
-                               }
-                           });
-                           return button.render();
-                       }
-                   }
-               }); 
+            });
+
+            editor.on('summernote.blur.prevent', function() {
+                $wire.hanlderEditor(id, data);
+            });
         }
+
+
         editorSummerNote('description')
         editorSummerNote('shortDescription')
+
+       
     })
 
 </script>

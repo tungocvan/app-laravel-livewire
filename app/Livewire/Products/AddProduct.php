@@ -27,21 +27,7 @@ class AddProduct extends Component
     public $salePrice;
     public $shortDescription;
     public $tags = '';
-    public $config = [
-        "height" => "200",
-        "toolbar" => [
-            ['style', ['bold', 'italic', 'underline', 'clear']],
-            ['font', ['strikethrough', 'superscript', 'subscript']],
-            ['fontsize', ['fontsize']],
-            ['fontname', ['fontname']],
-            ['color', ['color']],
-            ['para', ['ul', 'ol', 'paragraph']],
-            ['height', ['height']],
-            ['table', ['table']],
-            ['insert', ['link', 'picture', 'video', 'lfm']],
-            ['view', ['fullscreen', 'codeview', 'help']],
-        ],
-    ];
+
 
     protected $rules = [
         'name' => 'required|string',
@@ -104,7 +90,7 @@ class AddProduct extends Component
         
         // Insert to wp_posts
         $postId = DB::table('wp_posts')->insertGetId($product);
-
+        
         // Insert meta data (price, sale price, image)
         DB::table('wp_postmeta')->insert([
             ['post_id' => $postId, 'meta_key' => '_regular_price', 'meta_value' => $this->regularPrice],

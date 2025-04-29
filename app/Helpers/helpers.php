@@ -115,3 +115,4 @@ function getCategories($taxonomy)
         ->select('wp_terms.term_id', 'wp_terms.name', 'wp_term_taxonomy.parent')
         ->get();
 }
+
