@@ -5,6 +5,7 @@ namespace App\Livewire\Products;
 use Livewire\Component;
 use App\Models\WpPost; 
 use App\Models\WpPostMeta; 
+use Illuminate\Support\Facades\DB;
 
 class ListProduct extends Component
 {
@@ -12,7 +13,11 @@ class ListProduct extends Component
 
     public function getProducts(){
         
+        //$posts = DB::table('wp_posts')->where('post_parent', 0)->get();
+        //dd($posts);     
+        
         $posts = WpPost::where('post_parent',0)->get();    
+        //dd($posts);
         $postsId = [];
         $images = [];$garlley = []; $postMeta = [];
         foreach ($posts as $key => $value) {
@@ -43,8 +48,8 @@ class ListProduct extends Component
 
     public function mount()
     {
-        $this->posts = $this->getProducts();
-        dd($this->posts);
+        $this->posts = $this->getProducts();    
+        //dd($this->posts);
     }
     public function render()
     {

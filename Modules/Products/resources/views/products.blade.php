@@ -1,5 +1,6 @@
 @extends('adminlte::page')
-
+@section('plugins.xlsx', true)
+@section('plugins.jsGrid', true)
 
 @section('title', 'Settings')
 
