@@ -15,6 +15,11 @@
             },
         }))
         document.addEventListener('livewire:initialized', () => {
+            var handlerSubmit = function(value) {
+                let btnEdit = "<input class='jsgrid-button jsgrid-edit-button' type='button' title='Edit' onclick='handlerEdit()'>"
+                let btnDelete = "<input class='jsgrid-button jsgrid-delete-button' type='button' title='Delete' >";
+                return  btnEdit + btnDelete
+            }
             var MyPriceField = function(config) {
                 jsGrid.Field.call(this, config);
             };
@@ -52,12 +57,27 @@
                     return `<input type='checkbox' value='${value}' />`
                 },
             })
+            var MyButtonField = function(config) {
+                jsGrid.Field.call(this, config);
+            };
+            MyButtonField.prototype = new jsGrid.Field({
+                        headerTemplate: function() {
+                            return "Action"
+                        },                       
+                        itemTemplate: function(value) {
+                            return handlerSubmit(value)
+                        },   
+                        align:'center',
+                        width:10
+            })
             var db = @json($posts);       
+
             console.log(db);
             jsGrid.fields.myPriceField = MyPriceField;
             jsGrid.fields.myImageField = MyImageField;
             jsGrid.fields.myDateField =  MyDateField;
             jsGrid.fields.myCheckBoxField =  MyCheckBoxField;
+            jsGrid.fields.myButtonField =  MyButtonField;
             $("#jsGrid").jsGrid({
                 width: "100%",
                 height: "100%",                 
@@ -68,13 +88,8 @@
                     { name: "_price",title:"Price", type: "myPriceField", width: 50, align: "right" },              
                     { name: "_regular_price",title:"Regular Price", type: "myPriceField", width: 50, align: "right" },              
                     { name: "guid",title:"Image", type: "myImageField", width: 50, height:50, align: "center" },              
-                    { name: "post_date",title:"Post Date", type: "myDateField", width: 50, height:50, align: "center" },              
-                    {  
-                        headerTemplate: function() {
-                            return "Action"
-                        },
-                        type: "control" 
-                    }
+                    { name: "post_date",title:"Post Date", type: "myDateField", width: 50, height:50, align: "center" },     
+                    { name: "ID", type: "myButtonField", width:15,  align: "center" },                             
                 ]
             })
         })
@@ -111,6 +126,9 @@
             // Định dạng ngày tháng năm
             const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
             return date.toLocaleDateString('vi-VN', options);
+        }
+        function handlerEdit(value){
+            console.log(value);
         }
  </script>   
 @endscript
