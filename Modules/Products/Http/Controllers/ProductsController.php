@@ -4,6 +4,7 @@ namespace Modules\Products\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
+
 class ProductsController extends Controller
 {
     /**
@@ -26,6 +27,18 @@ class ProductsController extends Controller
     }
     public function categories()
     {
+        return view('Products::categories');
+    }
+    public function edit($id)
+    {
+        //dd($id);    
+        //$product = Products::find($id);
+        // dd($product);
+        return view('Products::edit',compact('id'));
+    }
+    public function delete($id)
+    {
+        dd($id);
         return view('Products::categories');
     }
 
@@ -56,10 +69,7 @@ class ProductsController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
-    {
-        //
-    }
+  
 
     /**
      * Update the specified resource in storage.

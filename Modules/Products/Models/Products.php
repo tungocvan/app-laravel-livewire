@@ -9,7 +9,7 @@ class Products extends Model
 {
     use HasFactory;
     // protected $connection = 'wordpress';
-    // protected $table = 'wp_users';
+    protected $table = 'wp_posts';
     // protected $primaryKey = 'ID';
     // protected $fillable = [];
     // protected $hidden = [];

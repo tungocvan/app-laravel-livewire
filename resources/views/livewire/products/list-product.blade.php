@@ -16,8 +16,8 @@
         }))
         document.addEventListener('livewire:initialized', () => {
             var handlerSubmit = function(value) {
-                let btnEdit = "<input class='jsgrid-button jsgrid-edit-button' type='button' title='Edit' onclick='handlerEdit()'>"
-                let btnDelete = "<input class='jsgrid-button jsgrid-delete-button' type='button' title='Delete' >";
+                let btnEdit = `<a href='/admin/products/edit/${value}' class='mx-1'><input class='jsgrid-button jsgrid-edit-button' type='button' title='Edit'></a>`
+                let btnDelete = `<a href='/admin/products/delete/${value}' class='mx-1'><input class='jsgrid-button jsgrid-delete-button' type='button' title='Delete'></a>`;
                 return  btnEdit + btnDelete
             }
             var MyPriceField = function(config) {
