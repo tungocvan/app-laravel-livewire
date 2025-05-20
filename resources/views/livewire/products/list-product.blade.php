@@ -32,8 +32,8 @@
                 jsGrid.Field.call(this, config);
             };
             MyImageField.prototype = new jsGrid.Field({
-                itemTemplate: function(value) {
-                    return `<img alt='Avatar' class='table-avatar' src='${value}' width='50' height='50'>`;
+                itemTemplate: function(value) { 
+                    return `<img alt='Avatar' class='table-avatar' src='/storage/${value}' width='50' height='50'>`;
                 },
             })
             var MyDateField = function(config) {

@@ -81,7 +81,7 @@ class AddProduct extends Component
             'post_name'        => Str::slug($this->name),
             'post_modified'    => Carbon::now(),
             'post_modified_gmt' => Carbon::now('UTC'),
-            'guid'             => $imagePath?url('storage/' . $imagePath):'',
+            'guid'             => $imagePath?$imagePath:'',
             'post_type'        => 'product',
         ];
         $this->validate($this->rules);
@@ -96,7 +96,6 @@ class AddProduct extends Component
             ['post_id' => $postId, 'meta_key' => '_regular_price', 'meta_value' => $this->regularPrice],
             ['post_id' => $postId, 'meta_key' => '_price', 'meta_value' => $this->salePrice ?? $this->regularPrice],
             ['post_id' => $postId, 'meta_key' => '_categories', 'meta_value' => serialize($this->selectedCategories)],
-            ['post_id' => $postId, 'meta_key' => '_thumbnail_id', 'meta_value' => $imagePath],
         ]);
 
         // (Optional) Upload gallery images
@@ -119,17 +118,17 @@ class AddProduct extends Component
         if (empty($this->gallery)) {
             return '';
         }
-
-        $galleryIds = [];
+        // 'guid' => asset('storage/' . $imagePath),
+        $galleryIds = [];$imageGallery = [];
         foreach ($this->gallery as $image) {
             $imagePath = $image->store('products/gallery', 'public');
-            
+            $imageGallery[]=$imagePath;
             $attachment = WpPost::create([
                 'post_author' => auth()->id() ?? 1,
                 'post_title' => $this->name . ' Gallery Image',
                 'post_status' => 'inherit',
                 'post_type' => 'attachment',
-                'guid' => asset('storage/' . $imagePath),
+                'guid' => $imagePath,
                 'post_mime_type' => $image->getMimeType(),
                 'post_name' => 'product-' . $productId . '-gallery-' . count($galleryIds),
                 'post_content' => '',
@@ -141,11 +140,14 @@ class AddProduct extends Component
                 'post_date' => now(),
                 'post_date_gmt' => now(),
             ]);
-
+            
             $galleryIds[] = $attachment->id;
+            
         }
 
-        
+        DB::table('wp_postmeta')->insert([
+            ['post_id' => $productId, 'meta_key' => '_thumbnail_id', 'meta_value' => serialize($imageGallery)],
+        ]);
 
         return implode(',', $galleryIds);
     }

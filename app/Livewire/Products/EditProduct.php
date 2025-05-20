@@ -19,13 +19,23 @@ class EditProduct extends Component
                 $this->product['_price'] = $meta['meta_value'];
              }       
              if($meta['meta_key'] === '_categories'){
-                $this->product['_categories'] = $meta['meta_value'];
+                $this->product['_categories'] = unserialize($meta['meta_value']);
              }       
              if($meta['meta_key'] === '_thumbnail_id'){
-                $this->product['_thumbnail_id'] = $meta['meta_value'];
+                $this->product['_thumbnail_id'] = unserialize($meta['meta_value']);
              }       
          }   
-        dd($this->product);
+
+      //   $this->productImages = Products::select('guid')->where('post_parent',$id)->get()->toArray();
+      //   $newArray = [];
+      //    foreach ($this->productImages as $item) {
+      //       $newArray[] = $item['guid'];
+      //    }
+         
+      //   $this->product['_thumbnail_id'] = $newArray;
+
+   //     dd($this->productImages);
+       dd($this->product);
     }
     
     public function render()

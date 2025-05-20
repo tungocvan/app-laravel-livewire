@@ -3,7 +3,8 @@
 namespace Modules\Products\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-
+use Modules\Products\Models\Products;
+use App\Models\WpPostMeta;
 
 class ProductsController extends Controller
 {
@@ -38,8 +39,14 @@ class ProductsController extends Controller
     }
     public function delete($id)
     {
-        dd($id);
-        return view('Products::categories');
+        
+       // $product = Products::find($id);
+        $productMeta = WpPostMeta::where('post_id', $id)->delete();
+        $productImages = Products::where('post_parent',$id)->delete();
+        $product = Products::where('ID', $id)->delete();        
+        //dd($product);
+        //$product->delete();
+        return redirect('/admin/products');
     }
 
     /**
