@@ -47,7 +47,7 @@ class AddProduct extends Component
     public function render()
     {
         $allCategories = $this->getCategories();
-        $this->categoriesTree = $this->buildTree($allCategories->toArray());
+        $this->categoriesTree = $this->buildTree($allCategories->toArray());       
         return view('livewire.products.add-product', [
             'allCategories' => $allCategories,
         ]);
@@ -87,7 +87,8 @@ class AddProduct extends Component
         $this->validate($this->rules);
         // dd($product);
         //dd($this->gallery);
-        
+        //dd($this->selectedCategories);        
+        //dd($this->selectedCategories);
         // Insert to wp_posts
         $postId = DB::table('wp_posts')->insertGetId($product);
         

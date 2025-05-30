@@ -58,13 +58,13 @@
 
                         <div class="form-group">
                             <label for="regularPrice">Regular Price ($) <span class="text-danger">*</span></label>
-                            <input type="number" step="0.01" wire:model.defer="regularPrice" id="regularPrice" class="form-control @error('regularPrice') is-invalid @enderror" value="{{$product->post_excerpt}}" required>
+                            <input type="number" step="0.01" wire:model.defer="regularPrice" id="regularPrice" class="form-control @error('regularPrice') is-invalid @enderror" value="{{$product->_regular_price}}" required>
                             @error('regularPrice') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="form-group">
                             <label for="salePrice">Sale Price ($)</label>
-                            <input type="number" step="0.01" wire:model.defer="salePrice" id="salePrice" class="form-control @error('salePrice') is-invalid @enderror">
+                            <input type="number" step="0.01" wire:model.defer="salePrice" id="salePrice" class="form-control @error('salePrice') is-invalid @enderror" value="{{$product->_price}}" >
                             @error('salePrice') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
@@ -89,6 +89,11 @@
                                     <img :src="previewUrl" alt="Preview" class="img-thumbnail" width="80">
                                 </div>
                             @endif
+                            @if(isset($product->guid))
+                                <div class="mt-2">                                    
+                                    <img src='/storage/{{ $product->guid }}' alt="Preview" class="img-thumbnail" width="80">
+                                </div>
+                            @endif
                         </div>
                         <div class="form-group">
                             <div x-transition class="border p-3 rounded">                             
@@ -96,9 +101,16 @@
                                 <small class="text-muted">You can select multiple images</small>
                                 
                                 <div id="previewUrls" class="mt-2 d-flex flex-wrap">
-                                    <template x-for="url in previewUrls" :key="url">
-                                        <img :src="url" class="img-thumbnail mr-2" />
-                                    </template>
+                                   
+                                    @if(isset($product->_thumbnail_id))
+                                        @foreach ($product->_thumbnail_id as $url)
+                                        <img src='/storage/{{ $url}}' class="img-thumbnail mr-2" width="80">
+                                        @endforeach
+                                    @else
+                                        <template x-for="url in previewUrls" :key="url">
+                                            <img :src="url" class="img-thumbnail mr-2" />
+                                        </template>
+                                    @endif    
                                 </div>
                             </div>
                         </div>
@@ -111,7 +123,7 @@
                                     Select Categories
                                 </button>
                                 <div class="dropdown-menu" aria-labelledby="dropdownCategories">
-                                    @if(isset($categoriesTree))
+                                    @if(isset($categoriesTree))                                    
                                         @foreach($categoriesTree as $category)
                                             @include('livewire.products.partials.category', ['category' => $category])
                                         @endforeach

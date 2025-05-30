@@ -19,7 +19,7 @@ class EditProduct extends Component
                 $this->product['_price'] = $meta['meta_value'];
              }       
              if($meta['meta_key'] === '_categories'){
-                $this->product['_categories'] = unserialize($meta['meta_value']);
+                $this->product['_categories'] = unserialize($meta['meta_value']);               
              }       
              if($meta['meta_key'] === '_thumbnail_id'){
                 $this->product['_thumbnail_id'] = unserialize($meta['meta_value']);
@@ -35,7 +35,7 @@ class EditProduct extends Component
       //   $this->product['_thumbnail_id'] = $newArray;
 
    //     dd($this->productImages);
-       dd($this->product);
+       //dd($this->product);
     }
     
     public function render()
