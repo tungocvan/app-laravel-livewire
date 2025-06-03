@@ -47,6 +47,7 @@ class AddProduct extends Component
     public function render()
     {
         $allCategories = $this->getCategories();
+        //dd($allCategories->toArray());
         $this->categoriesTree = $this->buildTree($allCategories->toArray());       
         return view('livewire.products.add-product', [
             'allCategories' => $allCategories,
@@ -87,7 +88,7 @@ class AddProduct extends Component
         $this->validate($this->rules);
         // dd($product);
         //dd($this->gallery);
-        //dd($this->selectedCategories);        
+        // dd($this->categoriesTree);        
         //dd($this->selectedCategories);
         // Insert to wp_posts
         $postId = DB::table('wp_posts')->insertGetId($product);
@@ -97,6 +98,7 @@ class AddProduct extends Component
             ['post_id' => $postId, 'meta_key' => '_regular_price', 'meta_value' => $this->regularPrice],
             ['post_id' => $postId, 'meta_key' => '_price', 'meta_value' => $this->salePrice ?? $this->regularPrice],
             ['post_id' => $postId, 'meta_key' => '_categories', 'meta_value' => serialize($this->selectedCategories)],
+            ['post_id' => $postId, 'meta_key' => '_tags', 'meta_value' => $this->tags],
         ]);
 
         // (Optional) Upload gallery images
@@ -155,11 +157,13 @@ class AddProduct extends Component
 
     protected function saveTerms($productId, $terms)
     {
-        foreach ($terms as $term_id) {       
+        
+        foreach ($terms as $term) {       
                 // Gán terms cho sản phẩm
+                $term_id = explode(":",$term);
                 WpTermRelationship::create([
                     'object_id' => $productId,
-                    'term_taxonomy_id' => $term_id,
+                    'term_taxonomy_id' => $term_id[0],
                     'term_order' => 0,
                 ]);
         }
