@@ -137,7 +137,7 @@
 
                 <div class="form-group text-right mt-4">
                     <button type="submit" class="btn btn-primary" wire:loading.attr="disabled">
-                        <span wire:loading.remove>Add Product</span>
+                        <span wire:loading.remove>Update Product</span>
                         <span wire:loading>Processing...</span>
                     </button>
                 </div>
