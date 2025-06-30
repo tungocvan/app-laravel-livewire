@@ -104,11 +104,14 @@
                                    
                                     @if(isset($product->_thumbnail_id))
                                         @foreach ($product->_thumbnail_id as $url)
-                                        <img src='/storage/{{ $url}}' class="img-thumbnail mr-2" width="80">
+                                        <div class="image-wrapper position-relative me-2 mb-2">
+                                            <img src='/storage/{{ $url}}' class="img-thumbnail mr-2" width="80">
+                                            <button type="button" class="btn-close custom-close-btn" aria-label="Remove image"></button>
+                                            </div>
                                         @endforeach
                                     @else
                                         <template x-for="url in previewUrls" :key="url">
-                                            <img :src="url" class="img-thumbnail mr-2" />
+                                            <img :src="url" class="img-thumbnail mr-2 " />
                                         </template>
                                     @endif    
                                 </div>

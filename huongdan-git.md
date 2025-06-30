@@ -28,3 +28,20 @@ git push --force origin main
 git log --oneline
 +Phục hồi lại commit
 git reset --hard <commit-hash> (commit-hash là các mã số: dbd59da)
+
+
+// các câu lệnh mặc định để git lên kho mới
+// khởi tạo kho
+git init 
+// đưa dữ liệu vào bộ nhớ
+git add .
+thực hiện cập nhật mới
+git commit -m "first commit"
+// chọn nhánh main
+git branch -M main
+// lưu ý phải chọn remote là SSH, không dùng https
+// trường hợp lỡ chọn remote bằng https thì dùng lệnh sau xóa remote: remote remove origin , sau đó cài đặt lại remote , 
+// git remote -v , lệnh kiểm tra đườn dẫn remote
+git remote add origin git@github.com:tungocvan/laravel-12.git
+// đẩy lên kho git
+git push -u origin main
